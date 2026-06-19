@@ -147,3 +147,37 @@ body.alto-contraste ion-select::part(label) {
 body.alto-contraste .form-item ion-select::part(text) {
   color: #FFFFFF !important;
 }
+
+/* EMPTY STATE (ESTADO VAZIO) */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888888;
+
+  ion-icon {
+    font-size: 64px;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ion-color-dark);
+    margin-bottom: 5px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+/* Empty State no Alto Contraste */
+body.alto-contraste .empty-state h3,
+body.alto-contraste .empty-state p {
+  color: #FFFFFF !important;
+}
+body.alto-contraste .empty-state ion-icon {
+  color: #FFFF00 !important;
+}

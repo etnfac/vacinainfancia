@@ -1,11 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonSelect, IonSelectOption, IonItem, IonButtons, IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonLabel, IonBadge, IonFab, IonFabButton, IonModal, IonInput, ToastController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonSelect, IonSelectOption, IonItem, IonButtons, IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonLabel, IonBadge, IonFab, IonFabButton, IonModal, IonInput, ToastController, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close } from 'ionicons/icons';
+import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline } from 'ionicons/icons';
 import { register } from 'swiper/element/bundle';
-
 import { VacinaService } from '../services/vacina.service';
 
 register();
@@ -39,7 +38,7 @@ export class HomePage implements OnInit {
   salvando: boolean = false; 
 
   constructor() {
-    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close });
+    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline });
   }
 
   ngOnInit() {
@@ -104,6 +103,25 @@ export class HomePage implements OnInit {
       this.salvando = false; 
       alert('Ocorreu um erro ao salvar a vacina no Firebase.');
     });
+  }
+
+  // Apagar a vacina
+  async deletarVacina(id: string) {
+    try {
+      await this.vacinaService.deletarVacina(id);
+      
+      const toast = await this.toastController.create({
+        message: 'Vacina removida da caderneta.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom',
+        icon: 'trash-outline'
+      });
+      await toast.present();
+    } catch (erro) {
+      console.error("Erro ao deletar:", erro);
+      alert('Erro ao excluir a vacina.');
+    }
   }
 
   trocarIdioma() {

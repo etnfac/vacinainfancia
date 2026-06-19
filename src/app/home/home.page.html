@@ -89,30 +89,49 @@
       <h2 class="section-title">Histórico de Vacinas</h2>
       
       <ion-list class="vaccine-list" lines="none">
+        
+        <!-- ESTADO VAZIO -->
+        @if (listaVacinasFiltradas.length === 0) {
+          <div class="empty-state">
+            <ion-icon name="medical-outline"></ion-icon>
+            <h3>Nenhuma vacina por aqui</h3>
+            <p>Clique no botão <strong>+</strong> para adicionar a primeira vacina da caderneta desta criança.</p>
+          </div>
+        }
+
+        <!-- LISTA DE VACINAS COM DESLIZE (SWIPE) -->
         @for (vacina of listaVacinasFiltradas; track vacina.id) {
-          <ion-item class="vaccine-item" [ngClass]="vacina.status">
+          <ion-item-sliding>
             
-            <ion-label>
-              <h3 class="vaccine-name">{{ vacina.nome }}</h3>
-              <p class="vaccine-date">Prevista/Aplicada: {{ vacina.data }}</p>
-            </ion-label>
+            <!-- Vacina Normal -->
+            <ion-item class="vaccine-item" [ngClass]="vacina.status">
+              <ion-label>
+                <h3 class="vaccine-name">{{ vacina.nome }}</h3>
+                <p class="vaccine-date">Prevista/Aplicada: {{ vacina.data }}</p>
+              </ion-label>
 
-            @if (vacina.status === 'concluida') {
-              <ion-badge color="primary" slot="end">Em Dia</ion-badge>
-              <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
-            }
-            
-            @if (vacina.status === 'pendente') {
-              <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
-              <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
-            }
+              @if (vacina.status === 'concluida') {
+                <ion-badge color="primary" slot="end">Em Dia</ion-badge>
+                <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
+              }
+              @if (vacina.status === 'pendente') {
+                <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
+                <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
+              }
+              @if (vacina.status === 'atrasada') {
+                <ion-badge color="tertiary" slot="end">Atrasada</ion-badge>
+                <ion-icon name="alert-circle" color="tertiary" slot="end"></ion-icon>
+              }
+            </ion-item>
 
-            @if (vacina.status === 'atrasada') {
-              <ion-badge color="tertiary" slot="end">Atrasada</ion-badge>
-              <ion-icon name="alert-circle" color="tertiary" slot="end"></ion-icon>
-            }
+            <!-- Botão (deslizar) -->
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="deletarVacina(vacina.id)">
+                <ion-icon slot="icon-only" name="trash-outline" style="font-size: 24px;"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
 
-          </ion-item>
+          </ion-item-sliding>
         }
       </ion-list>
     </div>
