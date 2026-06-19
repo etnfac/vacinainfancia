@@ -35,37 +35,46 @@
 <!-- CORPO DO APLICATIVO -->
 <ion-content style="--background: #FAFAFA;">
   
-  <!-- SEÇÃO DE CAMPANHAS -->
   <div class="campaign-section">
     <h2 class="section-title">Fique de Olho</h2>
     
-    <div class="carousel-container">
-      
-      <!-- Campanha de Vacinação (Cor Secundária - Amarelo) -->
-      <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
-        <ion-card-header>
-          <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-            Gotinha Salva-Vidas
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-          A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!
-        </ion-card-content>
-      </ion-card>
+    <swiper-container
+      autoplay-delay="4000"
+      autoplay-disable-on-interaction="false"
+      pagination="true"
+      slides-per-view="1.15"
+      centered-slides="true"
+      space-between="15">
 
-      <!-- Proteção Infantil (Cor Terciária - Laranja) -->
-      <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
-        <ion-card-header>
-          <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-            Proteja a Infância
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-          Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.
-        </ion-card-content>
-      </ion-card>
+      <swiper-slide>
+        <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
+          <img src="https://images.pexels.com/photos/3952224/pexels-photo-3952224.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vacina Poliomielite" class="card-image" />
+          <ion-card-header>
+            <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
+              Gotinha Salva-Vidas
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
+            A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!
+          </ion-card-content>
+        </ion-card>
+      </swiper-slide>
 
-    </div>
+      <swiper-slide>
+        <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
+          <img src="https://images.pexels.com/photos/11612080/pexels-photo-11612080.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Maio Laranja" class="card-image" />
+          <ion-card-header>
+            <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
+              Maio Laranja
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
+            Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.
+          </ion-card-content>
+        </ion-card>
+      </swiper-slide>
+
+    </swiper-container>
   </div>
 
 </ion-content>

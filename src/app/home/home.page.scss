@@ -1,4 +1,4 @@
-/* Título da Seção */
+/* Título */
 .section-title {
   font-size: 20px;
   font-weight: 800;
@@ -7,27 +7,25 @@
   letter-spacing: -0.5px;
 }
 
-/* A pista do Carrossel */
-.carousel-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory; /* Faz o card encaixar ao rolar */
-  padding: 0 10px 20px 10px;
-  
-  /* Escondendo a barra de rolagem do Navegador */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Customizando os pontinhos do Swiper */
+swiper-container {
+  width: 100%;
+  padding-bottom: 30px;
+  --swiper-pagination-color: var(--ion-color-primary); /* Bolinha verde */
+  --swiper-pagination-bullet-inactive-color: #d1d1d1;
 }
 
-/* Design dos Card */
+/* O design dos Cards */
 .campaign-card {
-  min-width: 280px; /* Largura fixa para mobile */
-  max-width: 300px;
-  scroll-snap-align: center; /* Ponto de encaixe da rolagem */
-  margin: 0 10px;
+  margin: 0;
   border-radius: 16px;
-  box-shadow: 0 6px 12px rgba(71, 60, 51, 0.08); /* Sombra marrom */
+  box-shadow: 0 6px 12px rgba(71, 60, 51, 0.08);
+  overflow: hidden;
+}
+
+/* Ajuste da imagem para não deformar */
+.card-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
 }
