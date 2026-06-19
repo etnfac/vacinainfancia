@@ -35,46 +35,82 @@
 <!-- CORPO DO APLICATIVO -->
 <ion-content style="--background: #FAFAFA;">
   
-  <div class="campaign-section">
-    <h2 class="section-title">Fique de Olho</h2>
+  <div class="web-wrapper">
     
-    <swiper-container
-      autoplay-delay="4000"
-      autoplay-disable-on-interaction="false"
-      pagination="true"
-      slides-per-view="1.15"
-      centered-slides="true"
-      space-between="15">
+    <div class="campaign-section">
+      <h2 class="section-title">Fique de Olho</h2>
+      
+      <swiper-container
+        autoplay-delay="4000"
+        autoplay-disable-on-interaction="false"
+        pagination="true"
+        pagination-clickable="true"
+        slides-per-view="1.15"
+        centered-slides="true"
+        space-between="15"
+        breakpoints='{"768": {"slidesPerView": 2.2, "centeredSlides": false}}'>
 
-      <swiper-slide>
-        <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
-          <img src="https://images.pexels.com/photos/3952224/pexels-photo-3952224.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vacina Poliomielite" class="card-image" />
-          <ion-card-header>
-            <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-              Gotinha Salva-Vidas
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-            A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!
-          </ion-card-content>
-        </ion-card>
-      </swiper-slide>
+        <swiper-slide>
+          <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
+            <img src="https://images.pexels.com/photos/3952224/pexels-photo-3952224.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vacina Poliomielite" class="card-image" />
+            <ion-card-header>
+              <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
+                Gotinha Salva-Vidas
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
+              A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!
+            </ion-card-content>
+          </ion-card>
+        </swiper-slide>
 
-      <swiper-slide>
-        <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
-          <img src="https://images.pexels.com/photos/11612080/pexels-photo-11612080.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Maio Laranja" class="card-image" />
-          <ion-card-header>
-            <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-              Maio Laranja
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-            Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.
-          </ion-card-content>
-        </ion-card>
-      </swiper-slide>
+        <swiper-slide>
+          <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
+            <img src="https://images.pexels.com/photos/11612080/pexels-photo-11612080.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Maio Laranja" class="card-image" />
+            <ion-card-header>
+              <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
+                Maio Laranja
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
+              Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.
+            </ion-card-content>
+          </ion-card>
+        </swiper-slide>
 
-    </swiper-container>
-  </div>
+      </swiper-container>
+    </div>
 
-</ion-content>
+    <div class="vaccines-section">
+      <h2 class="section-title">Histórico de Vacinas</h2>
+      
+      <ion-list class="vaccine-list" lines="none">
+        @for (vacina of listaVacinas; track vacina.id) {
+          <ion-item class="vaccine-item" [ngClass]="vacina.status">
+            
+            <ion-label>
+              <h3 class="vaccine-name">{{ vacina.nome }}</h3>
+              <p class="vaccine-date">Prevista/Aplicada: {{ vacina.data }}</p>
+            </ion-label>
+
+            @if (vacina.status === 'concluida') {
+              <ion-badge color="primary" slot="end">Em Dia</ion-badge>
+              <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
+            }
+            
+            @if (vacina.status === 'pendente') {
+              <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
+              <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
+            }
+
+            @if (vacina.status === 'atrasada') {
+              <ion-badge color="tertiary" slot="end">Atrasada</ion-badge>
+              <ion-icon name="alert-circle" color="tertiary" slot="end"></ion-icon>
+            }
+
+          </ion-item>
+        }
+      </ion-list>
+    </div>
+
+  </div> </ion-content>
