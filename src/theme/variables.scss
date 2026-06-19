@@ -1,2 +1,35 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+/** Paleta de cores da Cyrrus **/
+:root {
+  /** primary - Verde (#ABC270) - Topo, Botões Principais, Vacinas 'Em Dia' **/
+  --ion-color-primary: #ABC270;
+  --ion-color-primary-rgb: 171,194,112;
+  --ion-color-primary-contrast: #473C33;
+  --ion-color-primary-shade: #96aa63;
+  --ion-color-primary-tint: #b4c87e;
+
+  /** secondary - Amarelo (#FEC868) - Vacinas 'Pendentes' ou Alertas **/
+  --ion-color-secondary: #FEC868;
+  --ion-color-secondary-rgb: 254,200,104;
+  --ion-color-secondary-contrast: #473C33;
+  --ion-color-secondary-shade: #e0b05b;
+  --ion-color-secondary-tint: #fece77;
+
+  /** tertiary - Laranja (#FDA769) - Vacinas 'Atrasadas' **/
+  --ion-color-tertiary: #FDA769;
+  --ion-color-tertiary-rgb: 253,167,105;
+  --ion-color-tertiary-contrast: #473C33;
+  --ion-color-tertiary-shade: #df935c;
+  --ion-color-tertiary-tint: #fdb078;
+
+  /** dark - Marrom (#473C33) - Títulos, Textos de destaque, NavBar **/
+  --ion-color-dark: #473C33;
+  --ion-color-dark-rgb: 71,60,51;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-shade: #3e352d;
+  --ion-color-dark-tint: #594f47;
+
+  /* Configurações Globais */
+  --ion-background-color: #FAFAFA; /* Fundo off-white */
+  --ion-text-color: #473C33; /* Texto marrom */
+  --ion-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
