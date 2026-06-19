@@ -1,0 +1,45 @@
+<ion-content style="--background: #FAFAFA;">
+  <div class="login-container">
+    
+    <!-- Logo -->
+    <div class="logo-container">
+      <h1 style="font-weight: 900; font-size: 32px; letter-spacing: -1px; text-align: center; margin: 0;">
+        <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span class="texto-infancia">INFÂNCIA</span>
+      </h1>
+      <p class="subtitle">Acesso Seguro do Responsável</p>
+    </div>
+
+    <!-- Formulário -->
+    <div class="form-container">
+      <ion-item class="form-item" lines="none">
+        <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+        <ion-input type="tel" label="CPF" labelPlacement="floating" placeholder="000.000.000-00" [value]="cpf" (ionInput)="formatarCPF($event)" maxlength="14"></ion-input>
+      </ion-item>
+
+      <ion-item class="form-item" lines="none" style="margin-top: 15px;">
+        <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+        <ion-input type="password" label="Senha" labelPlacement="floating" placeholder="Sua senha secreta" [(ngModel)]="senha"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" color="primary" class="btn-login" (click)="fazerLogin()">
+        Entrar no Sistema
+      </ion-button>
+      
+      <!-- Botão do Gov.br -->
+      <div style="text-align: center; margin: 25px 0; color: #888; font-size: 14px; font-weight: 500;">
+        ou acesse com
+      </div>
+
+      <ion-button expand="block" class="btn-gov" (click)="loginGov()">
+        <img src="https://logodownload.org/wp-content/uploads/2018/02/gov-br-logo.png" alt="Gov.br" style="height: 20px; margin-right: 10px;">
+        Entrar com gov.br
+      </ion-button>
+    </div>
+    
+    <!-- Rodapé -->
+    <div class="footer-login">
+      <p>VACINAINFÂNCIA - Ethan Faccioli for Cyrrus</p>
+    </div>
+
+  </div>
+</ion-content>

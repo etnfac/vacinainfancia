@@ -1,11 +1,12 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonSelect, IonSelectOption, IonItem, IonButtons, IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonLabel, IonBadge, IonFab, IonFabButton, IonModal, IonInput, ToastController, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonSelect, IonSelectOption, IonItem, IonButtons, IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonLabel, IonBadge, IonFab, IonFabButton, IonModal, IonInput, ToastController, IonItemSliding, IonItemOptions, IonItemOption, AlertController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline } from 'ionicons/icons';
+import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline } from 'ionicons/icons';
 import { register } from 'swiper/element/bundle';
 import { VacinaService } from '../services/vacina.service';
+import { Router } from '@angular/router';
 
 register();
 
@@ -21,10 +22,18 @@ export class HomePage implements OnInit {
   
   private vacinaService = inject(VacinaService);
   private toastController = inject(ToastController);
+  private router = inject(Router);
+  private alertController = inject(AlertController);
   
   // Listas: Uma com tudo do banco, outra só com a criança selecionada
   listaTodasVacinas: any[] = []; 
   listaVacinasFiltradas: any[] = []; 
+
+  // LISTA DINÂMICA DE CRIANÇAS
+  listaCriancas: any[] = [
+    { id: 'enzo', nome: 'Enzo Gabriel (3 anos)' },
+    { id: 'valentina', nome: 'Valentina (8 meses)' }
+  ];
   
   // Criança padrão ao abrir o app
   criancaAtual: string = 'enzo';
@@ -38,7 +47,7 @@ export class HomePage implements OnInit {
   salvando: boolean = false; 
 
   constructor() {
-    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline });
+    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline });
   }
 
   ngOnInit() {
@@ -56,10 +65,48 @@ export class HomePage implements OnInit {
     });
   }
 
-  // FILTRO DE CRIANÇAS
+  // --- LÓGICA DO FILTRO E CRIAÇÃO DE CRIANÇAS ---
   mudarCrianca(event: any) {
-    this.criancaAtual = event.detail.value;
-    this.atualizarFiltroCrianca();
+    const valorEscolhido = event.detail.value;
+
+    if (valorEscolhido === 'NOVA_CRIANCA') {
+      this.abrirAlertaNovaCrianca();
+      // Volta o seletor visualmente para a criança que já estava antes
+      event.target.value = this.criancaAtual; 
+    } else {
+      this.criancaAtual = valorEscolhido;
+      this.atualizarFiltroCrianca();
+    }
+  }
+
+  async abrirAlertaNovaCrianca() {
+    const alert = await this.alertController.create({
+      header: 'Adicionar Criança',
+      message: 'Digite o nome e a idade da criança para criar uma nova caderneta.',
+      inputs: [
+        { name: 'nome', type: 'text', placeholder: 'Ex: Alice (1 ano)' }
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Criar Caderneta',
+          handler: (dados) => {
+            if (dados.nome) {
+              // Cria um ID único tirando os espaços
+              const novoId = dados.nome.toLowerCase().replace(/\s/g, '');
+              
+              // Adiciona na lista
+              this.listaCriancas.push({ id: novoId, nome: dados.nome });
+              
+              // Seleciona a criança nova automaticamente
+              this.criancaAtual = novoId;
+              this.atualizarFiltroCrianca();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   atualizarFiltroCrianca() {
@@ -134,5 +181,9 @@ export class HomePage implements OnInit {
     } else if (tipo === 'fonte') {
       document.body.classList.toggle('fonte-ampliada');
     }
+  }
+
+  logout() {
+    this.router.navigate(['/login']);
   }
 }

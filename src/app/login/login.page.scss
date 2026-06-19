@@ -1,0 +1,71 @@
+/* Centraliza tudo verticalmente */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.logo-container {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.texto-infancia {
+  color: var(--ion-color-dark);
+}
+
+.subtitle {
+  color: #666;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+/* Design dos inputs */
+.form-item {
+  --background: #ffffff;
+  --border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(71, 60, 51, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.form-item ion-input {
+  --color: #222222;
+}
+
+.btn-login {
+  margin-top: 35px;
+  height: 50px;
+  font-weight: 800;
+  --border-radius: 12px;
+}
+
+.footer-login {
+  margin-top: 60px;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+}
+
+/* Alto Contraste */
+body.alto-contraste .form-item {
+  --background: #121212 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+body.alto-contraste .texto-infancia,
+body.alto-contraste .subtitle {
+  color: #FFFFFF !important;
+}
+
+.btn-gov {
+  --background: #1351B4; /* Azul oficial Gov.br */
+  --background-hover: #0c326f;
+  height: 50px;
+  font-weight: 700;
+  --border-radius: 12px;
+  --color: #ffffff;
+}

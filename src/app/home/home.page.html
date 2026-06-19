@@ -15,8 +15,8 @@
     </ion-title>
     
     <ion-buttons slot="end">
-      <ion-button color="dark" class="btn-perfil">
-        <ion-icon name="person-circle-outline" style="font-size: 28px;"></ion-icon>
+      <ion-button color="dark" class="btn-perfil" (click)="logout()">
+        <ion-icon name="log-out-outline" style="font-size: 28px;"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -26,10 +26,19 @@
       <ion-avatar slot="start">
         <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar da criança" />
       </ion-avatar>
+      
       <ion-select interface="action-sheet" [value]="criancaAtual" (ionChange)="mudarCrianca($event)" cancelText="Cancelar">
         <div slot="label" style="font-size: 12px; font-weight: 400; opacity: 0.9;">Carteira de Vacinação:</div>
-        <ion-select-option value="enzo">Enzo Gabriel (3 anos)</ion-select-option>
-        <ion-select-option value="valentina">Valentina (8 meses)</ion-select-option>
+        
+        @for (crianca of listaCriancas; track crianca.id) {
+          <ion-select-option [value]="crianca.id">{{ crianca.nome }}</ion-select-option>
+        }
+        
+        <!-- Nnova criança -->
+        <ion-select-option value="NOVA_CRIANCA" style="font-weight: bold; color: var(--ion-color-dark);">
+          ➕ Adicionar Criança...
+        </ion-select-option>
+        
       </ion-select>
     </ion-item>
   </ion-toolbar>
