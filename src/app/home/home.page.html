@@ -1,30 +1,34 @@
 <!-- CABEÇALHO -->
 <ion-header class="ion-no-border">
   
-  <!-- Barra Superior -->
-  <ion-toolbar style="--background: #FAFAFA;">
+  <ion-toolbar class="barra-acessibilidade" color="dark" style="min-height: 35px; --min-height: 35px; padding: 0 15px;">
+    <div style="display: flex; justify-content: flex-end; gap: 20px; font-size: 13px; font-weight: 600;">
+      <span (click)="trocarIdioma()" style="cursor: pointer;">🌐 Idioma</span>
+      <span (click)="toggleAcessibilidade('fonte')" style="cursor: pointer;">A+ Fonte</span>
+      <span (click)="toggleAcessibilidade('contraste')" style="cursor: pointer;">◐ Alto Contraste</span>
+    </div>
+  </ion-toolbar>
+
+  <ion-toolbar class="toolbar-principal">
     <ion-title style="font-weight: 900; font-size: 24px; letter-spacing: -1px;">
-      <!-- Cores da Cyrrus - título -->
-      <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span style="color: var(--ion-color-dark);">INFÂNCIA</span>
+      <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span class="texto-infancia">INFÂNCIA</span>
     </ion-title>
     
     <ion-buttons slot="end">
-      <ion-button color="dark">
+      <ion-button color="dark" class="btn-perfil">
         <ion-icon name="person-circle-outline" style="font-size: 28px;"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 
-  <!-- Barra Secundária: Seletor de Crianças -->
   <ion-toolbar color="primary">
     <ion-item color="primary" lines="none">
       <ion-avatar slot="start">
         <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar da criança" />
       </ion-avatar>
-      
-      <ion-select interface="action-sheet" value="enzo" cancelText="Cancelar">
+      <ion-select interface="action-sheet" [value]="criancaAtual" (ionChange)="mudarCrianca($event)" cancelText="Cancelar">
         <div slot="label" style="font-size: 12px; font-weight: 400; opacity: 0.9;">Carteira de Vacinação:</div>
-        <ion-select-option value="enzo">Enzo (3 anos)</ion-select-option>
+        <ion-select-option value="enzo">Enzo Gabriel (3 anos)</ion-select-option>
         <ion-select-option value="valentina">Valentina (8 meses)</ion-select-option>
       </ion-select>
     </ion-item>
@@ -85,7 +89,7 @@
       <h2 class="section-title">Histórico de Vacinas</h2>
       
       <ion-list class="vaccine-list" lines="none">
-        @for (vacina of listaVacinas; track vacina.id) {
+        @for (vacina of listaVacinasFiltradas; track vacina.id) {
           <ion-item class="vaccine-item" [ngClass]="vacina.status">
             
             <ion-label>
@@ -112,5 +116,55 @@
         }
       </ion-list>
     </div>
+  </div>
 
-  </div> </ion-content>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 20px; margin-right: 10px;">
+    <ion-fab-button color="primary" id="abrir-modal-vacina">
+      <ion-icon name="add" style="font-size: 32px;"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-modal #modalVacina trigger="abrir-modal-vacina" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.85, 1]">
+    <ng-template>
+      
+      <ion-header class="ion-no-border">
+        <ion-toolbar color="dark">
+          <ion-title>Nova Vacina</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="modalVacina.dismiss()">
+              <ion-icon name="close" style="font-size: 26px;"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding" style="--background: #FAFAFA;">
+        <div style="margin-top: 15px;">
+          
+          <ion-item class="form-item" lines="none">
+            <ion-input label="Nome da Vacina" labelPlacement="stacked" placeholder="Ex: Febre Amarela" [(ngModel)]="novaVacina.nome"></ion-input>
+          </ion-item>
+
+          <ion-item class="form-item" lines="none">
+            <ion-input type="date" label="Data Prevista/Aplicada" labelPlacement="stacked" [(ngModel)]="novaVacina.data"></ion-input>
+          </ion-item>
+
+          <ion-item class="form-item" lines="none">
+            <ion-select label="Status" labelPlacement="stacked" [(ngModel)]="novaVacina.status" cancelText="Cancelar">
+              <ion-select-option value="concluida">Em Dia (Aplicada)</ion-select-option>
+              <ion-select-option value="pendente">No Prazo (Pendente)</ion-select-option>
+              <ion-select-option value="atrasada">Atrasada</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button expand="block" color="primary" style="margin-top: 30px; height: 50px; font-weight: 800;" (click)="salvarVacina(modalVacina)" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar na Caderneta' }}
+          </ion-button>
+
+        </div>
+      </ion-content>
+
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

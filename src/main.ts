@@ -8,6 +8,7 @@ import { AppComponent } from './app/app.component';
 // Firebase
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 
 // Configuração do banco de dados
 const firebaseConfig = {
@@ -25,8 +26,9 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
 
-    // Ativando o Firebase e o Firestore
+    // Ativando o Firebase, Firestore e Auth
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth())
   ],
 }).catch(err => console.error(err));

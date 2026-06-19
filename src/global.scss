@@ -35,3 +35,51 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ACESSIBILIDADE */
+
+  /* Alto Contraste */
+body.alto-contraste {
+  --ion-background-color: #000000 !important;
+  --ion-text-color: #FFFFFF !important;
+  --ion-color-dark: #FFFFFF !important; /* Muda textos escuros para branco */
+  
+  --ion-color-primary: #FFFF00 !important; 
+  --ion-color-secondary: #00FFFF !important;
+  --ion-color-tertiary: #FF00FF !important;
+
+  /* Consertando o título */
+  .toolbar-principal {
+    --background: #000000 !important;
+    border-bottom: 1px solid #FFFF00 !important;
+  }
+  
+  .texto-infancia, .btn-perfil {
+    color: #FFFFFF !important; 
+  }
+
+  /* Barra de acessibilidade amarela */
+  .barra-acessibilidade {
+    --background: #FFFF00 !important;
+    color: #000000 !important;
+  }
+  .barra-acessibilidade span {
+    color: #000000 !important;
+  }
+
+  /* Cards e Listas */
+  .vaccine-item, .campaign-card {
+    --background: #121212 !important;
+    border: 1px solid #FFFF00 !important;
+  }
+  
+  .vaccine-name, .vaccine-date, ion-card-title, ion-card-content, .section-title {
+    color: #FFFFFF !important;
+  }
+}
+
+/* Fonte ampliada */
+body.fonte-ampliada {
+  * { font-size: 110% !important; }
+  .section-title { font-size: 24px !important; }
+}

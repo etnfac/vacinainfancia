@@ -1,7 +1,16 @@
+/* Cores do topo no modo normal */
+.toolbar-principal {
+  --background: #FAFAFA;
+}
+
+.texto-infancia {
+  color: var(--ion-color-dark);
+}
+
 /* Wrapper */
 .web-wrapper {
   max-width: 900px;
-  margin: 0 auto; /* Centralizar o bloco na tela */
+  margin: 0 auto; /* Centraliza o bloco na tela */
   padding-top: 10px;
 }
 
@@ -17,7 +26,8 @@
 /* Customizando os pontinhos do Swiper */
 swiper-container {
   width: 100%;
-  padding-bottom: 30px;
+  padding-bottom: 45px;
+  --swiper-pagination-bottom: 0px; /* Bolinhas pro fundo do espaço */
   --swiper-pagination-color: var(--ion-color-primary); /* Bolinha verde */
   --swiper-pagination-bullet-inactive-color: #d1d1d1;
 }
@@ -85,4 +95,55 @@ swiper-container {
 .vaccine-date {
   font-size: 13px;
   color: #6b7280;
+}
+
+/* ESTILOS DO FORMULÁRIO */
+.form-item {
+  --background: #ffffff;
+  --border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 8px rgba(71, 60, 51, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+/* Cor texto - Select */
+.form-item ion-input, 
+.form-item ion-select {
+  --color: #222222; /* Preto */
+  --placeholder-color: #888888;
+}
+
+/* Cor dos Títulos */
+.form-item ion-input::part(label),
+.form-item ion-select::part(label) {
+  color: #473C33 !important; /* Marrom */
+  font-weight: 700;
+}
+
+/* Modo Alto Contraste */
+body.alto-contraste .form-item {
+  --background: #121212 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+body.alto-contraste ion-input, 
+body.alto-contraste ion-select {
+  --color: #FFFFFF !important;
+}
+
+body.alto-contraste ion-input::part(label),
+body.alto-contraste ion-select::part(label) {
+  color: #FFFF00 !important;
+}
+
+/* Status 100% visível */
+.form-item ion-select::part(text) {
+  color: #222222 !important;
+  opacity: 1 !important;
+  font-weight: 500;
+}
+
+/* Alto Contraste */
+body.alto-contraste .form-item ion-select::part(text) {
+  color: #FFFFFF !important;
 }
