@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent, IonInput, IonButton, IonIcon, IonItem, AlertController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { lockClosedOutline, personOutline, medicalOutline, heartOutline, personAddOutline, callOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons';
+import { lockClosedOutline, personOutline, medicalOutline, heartOutline, personAddOutline, callOutline, checkmarkCircle, ellipseOutline, arrowBackOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -17,25 +17,50 @@ export class LoginPage {
   private router = inject(Router);
   private alertController = inject(AlertController);
 
-  isCadastro = false; 
+  telaAtual: 'login' | 'cadastro' | 'medico' = 'login';
+  
   nome = '';
   cpf = '';
   telefone = '';
   senha = '';
 
-  // Variáveis do checklist da senha
+  usuarioMedico = '';
+  senhaMedico = '';
+
   check = { tamanho: false, maiuscula: false, numero: false, especial: false };
 
   constructor() {
-    addIcons({ lockClosedOutline, personOutline, medicalOutline, heartOutline, personAddOutline, callOutline, checkmarkCircle, ellipseOutline });
+    addIcons({ lockClosedOutline, personOutline, medicalOutline, heartOutline, personAddOutline, callOutline, checkmarkCircle, ellipseOutline, arrowBackOutline });
   }
 
-  // Troca entre entrar e cadastrar
-  toggleCadastro() {
-    this.isCadastro = !this.isCadastro;
+  // Caixa de notificação com a identidade visual do app
+  async mostrarAlerta(titulo: string, mensagem: string) {
+    const alerta = await this.alertController.create({ header: titulo, message: mensagem, buttons: ['OK'] });
+    await alerta.present();
   }
 
-  // Trava implacável contra letras no CPF
+  mudarTela(novaTela: 'login' | 'cadastro' | 'medico') {
+    this.telaAtual = novaTela;
+    this.limparCampos();
+  }
+
+  limparCampos() {
+    this.nome = '';
+    this.cpf = '';
+    this.telefone = '';
+    this.senha = '';
+    this.usuarioMedico = '';
+    this.senhaMedico = '';
+    this.check = { tamanho: false, maiuscula: false, numero: false, especial: false };
+  }
+
+  formatarNome(event: any) {
+    let input = event.target;
+    let valor = input.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+    input.value = valor;
+    this.nome = valor;
+  }
+
   formatarCPF(event: any) {
     let input = event.target;
     let valor = input.value.replace(/\D/g, ''); 
@@ -47,7 +72,6 @@ export class LoginPage {
     this.cpf = valor;
   }
 
-  // Formata telefone dinamicamente
   formatarTelefone(event: any) {
     let input = event.target;
     let valor = input.value.replace(/\D/g, '');
@@ -59,7 +83,6 @@ export class LoginPage {
     this.telefone = valor;
   }
 
-  // Valida regras da senha em tempo real
   validarSenha() {
     this.check.tamanho = this.senha.length >= 8;
     this.check.maiuscula = /[A-Z]/.test(this.senha);
@@ -67,52 +90,70 @@ export class LoginPage {
     this.check.especial = /[!@#$%^&*(),.?":{}|<>]/.test(this.senha);
   }
 
-  // Cria a conta ou valida login
-  fazerLogin(tipoAcesso: string) {
+  fazerLoginResponsavel() {
     const dbUsuarios = JSON.parse(localStorage.getItem('db_usuarios') || '[]');
 
-    if (this.isCadastro) {
+    if (this.telaAtual === 'cadastro') {
       if (!this.nome || this.cpf.length !== 14 || this.telefone.length < 14 || !this.check.tamanho || !this.check.maiuscula || !this.check.numero || !this.check.especial) {
-        return alert('Preencha todos os campos e siga as regras de senha.');
+        this.mostrarAlerta('Atenção', 'Preencha todos os campos e siga as regras de senha.');
+        return;
       }
-      if (dbUsuarios.find((u: any) => u.cpf === this.cpf)) return alert('Este CPF já está cadastrado!');
+      if (dbUsuarios.find((u: any) => u.cpf === this.cpf)) {
+        this.mostrarAlerta('Ops!', 'Este CPF já está cadastrado!');
+        return;
+      }
       
-      dbUsuarios.push({ cpf: this.cpf, nome: this.nome, telefone: this.telefone, senha: this.senha, tipo: tipoAcesso });
+      dbUsuarios.push({ cpf: this.cpf, nome: this.nome, telefone: this.telefone, senha: this.senha, tipo: 'pai' });
       localStorage.setItem('db_usuarios', JSON.stringify(dbUsuarios));
-      this.salvarSessao(tipoAcesso, this.nome, this.telefone);
+      this.salvarSessao('pai', this.nome, this.telefone, this.cpf);
 
     } else {
-      if (tipoAcesso === 'medico') {
-        this.salvarSessao('medico', 'Profissional de Saúde', '');
-      } else {
-        const usuario = dbUsuarios.find((u: any) => u.cpf === this.cpf && u.senha === this.senha);
-        if (!usuario) return alert('CPF ou senha incorretos.');
-        this.salvarSessao('pai', usuario.nome, usuario.telefone);
+      const usuario = dbUsuarios.find((u: any) => u.cpf === this.cpf && u.senha === this.senha);
+      if (!usuario) {
+        this.mostrarAlerta('Acesso Negado', 'CPF ou senha incorretos.');
+        return;
       }
+      this.salvarSessao('pai', usuario.nome, usuario.telefone, usuario.cpf);
     }
   }
 
-  // Grava acesso e entra
-  salvarSessao(tipo: string, nome: string, telefone: string) {
+  fazerLoginMedico() {
+    if (this.usuarioMedico === 'admin' && this.senhaMedico === 'admin') {
+      this.salvarSessao('medico', 'Profissional de Saúde', '', '');
+    } else {
+      this.mostrarAlerta('Erro de Autenticação', 'Usuário ou senha incorretos para o sistema SUS.');
+    }
+  }
+
+  salvarSessao(tipo: string, nome: string, telefone: string, cpfLogado: string) {
     localStorage.setItem('tipoAcesso', tipo);
-    localStorage.setItem('cpfLogado', this.cpf);
+    localStorage.setItem('cpfLogado', cpfLogado);
     localStorage.setItem('nomeLogado', nome);
     localStorage.setItem('telefoneLogado', telefone);
+    this.limparCampos();
     this.router.navigate(['/home']);
   }
 
-  // Prompt com CPF para recuperar senha
   async esqueciSenha() {
     const alert = await this.alertController.create({
       header: 'Recuperar Senha',
-      message: 'Digite seu CPF para receber as instruções:',
-      inputs: [{ name: 'cpfDigitado', type: 'tel', placeholder: '000.000.000-00' }],
+      message: 'Digite seu CPF (apenas números) para receber a senha via SMS:',
+      inputs: [{ name: 'cpfDigitado', type: 'tel', placeholder: '00000000000' }],
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Enviar',
+          text: 'Solicitar SMS',
           handler: (dados) => {
-            if (dados.cpfDigitado) window.alert('As instruções foram enviadas para o telefone cadastrado!');
+            if (!dados.cpfDigitado) return;
+            const dbUsuarios = JSON.parse(localStorage.getItem('db_usuarios') || '[]');
+            const cpfLimpo = dados.cpfDigitado.replace(/\D/g, '');
+            const usuario = dbUsuarios.find((u: any) => u.cpf.replace(/\D/g, '') === cpfLimpo);
+            
+            if (usuario) {
+              this.mostrarAlerta('📱 SMS RECEBIDO!', `Para: ${usuario.telefone}\n\nMensagem: Olá ${usuario.nome.split(' ')[0]}, sua senha do VacinaInfância é: ${usuario.senha}`);
+            } else {
+              this.mostrarAlerta('Não Encontrado', 'CPF não encontrado no sistema.');
+            }
           }
         }
       ]

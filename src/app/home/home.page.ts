@@ -34,6 +34,7 @@ export class HomePage implements OnInit {
   modoEdicaoCrianca: boolean = false; 
   salvando: boolean = false; 
   isProfissional: boolean = false; 
+  isAltoContraste: boolean = false;
   
   cpfBusca: string = '';
   criancaBuscada: boolean = false;
@@ -45,7 +46,12 @@ export class HomePage implements OnInit {
     addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline, cameraOutline, settingsOutline, createOutline, searchOutline });
   }
 
-  // Prepara sessão e carrega banco local
+  // Caixa de notificação nativa para a Home
+  async mostrarAlerta(titulo: string, mensagem: string) {
+    const alerta = await this.alertController.create({ header: titulo, message: mensagem, buttons: ['OK'] });
+    await alerta.present();
+  }
+
   ionViewWillEnter() {
     const tipo = localStorage.getItem('tipoAcesso');
     this.isProfissional = tipo === 'medico';
@@ -54,7 +60,6 @@ export class HomePage implements OnInit {
     this.carregarCriancasDoBanco();
   }
 
-  // Firebase
   ngOnInit() {
     this.vacinaService.getVacinas().subscribe((dados: any[]) => {
       this.listaTodasVacinas = dados.map(v => {
@@ -66,7 +71,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Puxa as crianças vinculadas ao pai logado ou busca geral
   carregarCriancasDoBanco() {
     const db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
     const cpfLogado = localStorage.getItem('cpfLogado');
@@ -86,7 +90,6 @@ export class HomePage implements OnInit {
     this.atualizarFiltroCrianca();
   }
 
-  // Trava letras na busca
   formatarCPFBusca(event: any) {
     let input = event.target;
     let valor = input.value.replace(/\D/g, '');
@@ -98,7 +101,6 @@ export class HomePage implements OnInit {
     this.cpfBusca = valor;
   }
 
-  // Profissional puxa ficha inteira do paciente
   buscarPaciente() {
     const db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
     const paciente = db.find((c: any) => c.cpf === this.cpfBusca);
@@ -108,17 +110,15 @@ export class HomePage implements OnInit {
       this.criancaAtual = paciente.id;
       this.atualizarFiltroCrianca();
     } else {
-      alert('Paciente não localizado no SUS.');
+      this.mostrarAlerta('Não Encontrado', 'Paciente não localizado no SUS.');
       this.criancaBuscada = false;
     }
   }
 
-  // Trata criança ativa
   getCriancaAtual() {
     return this.listaCriancas.find(c => c.id === this.criancaAtual) || this.listaCriancas[0] || {};
   }
 
-  // Idade real
   calcularIdadeString(dataNasc: string): string {
     if (!dataNasc) return '';
     const nascimento = new Date(`${dataNasc}T00:00:00`);
@@ -132,7 +132,6 @@ export class HomePage implements OnInit {
     else return 'Recém-nascido';
   }
 
-  // Status de atraso
   calcularStatusDinamicamente(dataVacina: string, statusCadastrado: string): string {
     if (statusCadastrado === 'concluida') return 'concluida';
     const partesData = dataVacina.split('/');
@@ -143,14 +142,12 @@ export class HomePage implements OnInit {
     return (dataAgendada < hoje) ? 'atrasada' : 'pendente';
   }
 
-  // Data formatada
   formatarData(dataISO: string): string {
     if (!dataISO) return '';
     const partes = dataISO.split('-');
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
 
-  // Trava letras da criança
   formatarCPFCrianca(event: any) {
     let input = event.target;
     let valor = input.value.replace(/\D/g, '');
@@ -162,7 +159,6 @@ export class HomePage implements OnInit {
     this.novaCriancaForm.cpf = valor;
   }
 
-  // Salva no storage local
   carregarFotoPerfil(event: any) {
     const arquivo = event.target.files[0];
     if (arquivo && this.criancaAtual) {
@@ -175,7 +171,6 @@ export class HomePage implements OnInit {
     }
   }
 
-  // Navega e limpa form
   mudarCrianca(event: any) {
     const valorEscolhido = event.detail.value;
     if (valorEscolhido === 'NOVA_CRIANCA') {
@@ -194,10 +189,8 @@ export class HomePage implements OnInit {
     }
   }
 
-  // Fecha form
   fecharModalCrianca() { this.isModalCriancaOpen = false; }
 
-  // Action sheet de opções
   async gerenciarCrianca() {
     const crianca = this.getCriancaAtual();
     const actionSheet = await this.actionSheetCtrl.create({
@@ -211,15 +204,17 @@ export class HomePage implements OnInit {
     await actionSheet.present();
   }
 
-  // Prepara modo edição
   abrirModalEdicao(crianca: any) {
     this.modoEdicaoCrianca = true;
     this.novaCriancaForm = { ...crianca };
     this.isModalCriancaOpen = true;
   }
 
-  // Remove do DB local
   async excluirCriancaAtual(crianca: any) {
+    if (this.listaCriancas.length <= 1) {
+      this.mostrarAlerta('Atenção', 'Você precisa manter pelo menos uma caderneta ativa!');
+      return;
+    }
     let db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
     db = db.filter((c: any) => c.id !== crianca.id);
     localStorage.setItem('db_criancas', JSON.stringify(db));
@@ -227,9 +222,11 @@ export class HomePage implements OnInit {
     this.carregarCriancasDoBanco();
   }
 
-  // Salva no DB global e recarrega
   salvarNovaCrianca() {
-    if (!this.novaCriancaForm.nome || !this.novaCriancaForm.dataNascimento || !this.novaCriancaForm.cpf) return alert('Preencha os campos obrigatórios!');
+    if (!this.novaCriancaForm.nome || !this.novaCriancaForm.dataNascimento || !this.novaCriancaForm.cpf) {
+      this.mostrarAlerta('Atenção', 'Preencha os campos obrigatórios!');
+      return;
+    }
     
     let db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
 
@@ -239,7 +236,10 @@ export class HomePage implements OnInit {
         db[index] = { ...this.novaCriancaForm, primeiroNome: this.novaCriancaForm.nome.split(' ')[0], labelIdade: this.calcularIdadeString(this.novaCriancaForm.dataNascimento) };
       }
     } else {
-      if (db.find((c: any) => c.cpf === this.novaCriancaForm.cpf)) return alert('Criança já registrada no SUS!');
+      if (db.find((c: any) => c.cpf === this.novaCriancaForm.cpf)) {
+        this.mostrarAlerta('Ops!', 'Criança já registrada no SUS!');
+        return;
+      }
       const novoId = this.novaCriancaForm.nome.toLowerCase().replace(/\s/g, '') + Math.floor(Math.random() * 1000);
       db.push({ 
         ...this.novaCriancaForm, id: novoId, primeiroNome: this.novaCriancaForm.nome.split(' ')[0], 
@@ -253,14 +253,15 @@ export class HomePage implements OnInit {
     this.isModalCriancaOpen = false;
   }
 
-  // Filtra firebase
   atualizarFiltroCrianca() {
     this.listaVacinasFiltradas = this.listaTodasVacinas.filter(v => v.crianca === this.criancaAtual);
   }
 
-  // Envia pro Firebase
   salvarVacina(modal: any) {
-    if (this.novaVacina.nome === '' || this.novaVacina.data === '') return alert('Preencha os campos!');
+    if (this.novaVacina.nome === '' || this.novaVacina.data === '') {
+      this.mostrarAlerta('Atenção', 'Preencha todos os campos da vacina!');
+      return;
+    }
     this.salvando = true;
     const [ano, mes, dia] = this.novaVacina.data.split('-');
     const dataFormatada = `${dia}/${mes}/${ano}`;
@@ -272,19 +273,27 @@ export class HomePage implements OnInit {
       this.salvando = false; 
       const toast = await this.toastController.create({ message: 'Vacina registrada no SUS.', duration: 2500, color: 'success', position: 'bottom', icon: 'checkmark-circle' });
       await toast.present();
-    }).catch(erro => { this.salvando = false; alert('Erro de sincronização.'); });
+    }).catch(erro => { 
+      this.salvando = false; 
+      this.mostrarAlerta('Erro', 'Erro de sincronização com o banco de dados.'); 
+    });
   }
 
-  // Remove do firebase
   async deletarVacina(id: string) {
     try {
       await this.vacinaService.deletarVacina(id);
       const toast = await this.toastController.create({ message: 'Registro removido.', duration: 2000, color: 'danger', position: 'bottom', icon: 'trash-outline' });
       await toast.present();
-    } catch (erro) { alert('Erro ao excluir registro.'); }
+    } catch (erro) { 
+      this.mostrarAlerta('Erro', 'Erro ao excluir o registro.'); 
+    }
   }
 
-  // Desloga
+  toggleAcessibilidade(tipo: string) { 
+    document.body.classList.toggle(tipo === 'contraste' ? 'alto-contraste' : 'fonte-ampliada'); 
+    if (tipo === 'contraste') this.isAltoContraste = document.body.classList.contains('alto-contraste');
+  }
+  
   logout() { 
     localStorage.removeItem('tipoAcesso');
     this.router.navigate(['/login']); 
