@@ -73,16 +73,6 @@
           Adicionar Primeira Criança
         </ion-button>
       </div>
-      <!-- BOTÃO DE NOVA CONSULTA -->
-      @if (isProfissional && criancaBuscada) {
-        <div style="padding: 10px 15px 0 15px;">
-          <ion-button expand="block" fill="outline" color="medium" (click)="voltarPesquisa()">
-            <ion-icon name="search-outline" slot="start"></ion-icon>
-            Nova Consulta
-          </ion-button>
-        </div>
-      }
-
       @if (!isProfissional) {
         <div class="campaign-section">
           <h2 class="section-title" style="color: #222;">Fique de Olho</h2>
