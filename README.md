@@ -1,53 +1,83 @@
-# 💉 VaciNaInfância
+# 🛡️ VaciNaInfância: A Evolução Digital da Saúde Infantil
 
-Bem-vindo ao repositório do **VaciNaInfância**, uma aplicação moderna desenvolvida para simplificar o acompanhamento da caderneta de vacinação infantil. Este projeto foi construído utilizando **Angular (Standalone)** e **Ionic**, com foco absoluto em *Clean Code*, Responsividade e UI/UX.
+[![Ionic](https://img.shields.com/badge/Framework-Ionic%20v7-blue.svg)](https://ionicframework.com/)
+[![Angular](https://img.shields.com/badge/Structure-Angular%20v17-red.svg)](https://angular.io/)
+[![Firebase](https://img.shields.com/badge/Database-Firebase%20Firestore-orange.svg)](https://firebase.google.com/)
+[![License](https://img.shields.com/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
----
-
-## 💡 1. O Conceito
-A identidade visual do projeto nasceu de um estalo de design: a fusão entre as palavras "Vacina" e "Infância". Ao sobrepor o "NA" final de Vacina com o início da frase, criamos o **VACI**NA**INFÂNCIA**. Uma brincadeira tipográfica simples, mas que transmite exatamente a missão do app de forma memorável.
-
-![Rascunho da Ideia](rascunho-nome.jpeg)
-*Rascunho inicial do conceito tipográfico.*
+> **Uma plataforma moderna e segura para o gerenciamento de cadernetas de vacinação infantis.** O VaciNaInfância resolve o problema da perda de dados históricos de vacinação, vinculando a saúde da criança à sua identidade nacional (CPF) e centralizando o controle na nuvem.
 
 ---
 
-## 🏗️ 2. Arquitetura e Organização
-Desde a primeira linha de código, o repositório foi versionado utilizando as boas práticas de mercado para manter a linha do tempo semântica e profissional. Os commits seguem o seguinte padrão:
+## 📖 Visão Geral do Projeto
 
-* **`chore:`** Manutenção, configurações de infraestrutura e instalação de bibliotecas (ações invisíveis ao usuário final).
-* **`feat:`** Criação de novas funcionalidades (ex: Carrossel de campanhas, listas interativas).
-* **`style:`** Ajustes estritos de UI, CSS e Design System (sem alterar lógica).
-* **`fix:`** Resolução de bugs e erros de sistema.
-* **`docs:`** Alterações na documentação do projeto.
+O VaciNaInfância não é apenas um app de lembrete. É um ecossistema completo que integra Responsáveis Legais e Profissionais de Saúde em uma única plataforma. A grande inovação arquitetural do projeto é o **Vínculo Eterno da Vacina pelo CPF**: mesmo que a caderneta física ou a conta do responsável sejam excluídas, o histórico de vacinas aplicadas permanece amarrado ao CPF da criança na nuvem do Firebase, sendo restaurado instantaneamente em qualquer novo cadastro.
 
 ---
 
-## 🔥 3. O Desafio do Firebase
-Um dos primeiros grandes obstáculos técnicos foi a integração com o banco de dados. Durante o uso do Firebase CLI, enfrentei um *loop* severo de erros de cache e tokens corrompidos no ambiente de desenvolvimento do Windows (`Authentication Error: Your credentials are no longer valid`), que bloqueavam a configuração automática via terminal.
+## 💡 UX & UI: Design Centrado no Usuário e Acessibilidade
 
-**A Solução:**
-Ao invés de depender de scripts automatizados propensos a falhas de ambiente, optei pela **Integração Manual**. Isolei as chaves do SDK Web do Firebase e as injetei diretamente no `main.ts`, utilizando os *providers* nativos do Angular. O resultado? Controle total sobre a arquitetura, contorno do erro de terminal e uma conexão com o Firestore limpa e direta.
+O desenvolvimento do VaciNaInfância seguiu rigorosos padrões de Design Thinking, focando nas dores reais de pais e médicos.
 
----
+### 🧠 Abordagem de UX (User Experience)
+* **Fluxo Simplificado:** Reduzimos a fricção no cadastro de crianças, permitindo que responsáveis adicionem dependentes em segundos.
+* **Isolamento de Visões:** O sistema adapta sua interface dinamicamente baseada no `tipoAcesso` (Responsável ou Médico). Médicos têm acesso a uma poderosa ferramenta de busca por CPF, enquanto pais visualizam apenas seus dependentes.
+* **Feedback Constante:** Uso de Toasts e Alertas nativos customizados para informar sucesso, erros de sincronização ou regras de negócio (ex: CPF já cadastrado).
 
-## 🎨 4. UI/UX
-A interface foi construída seguindo rigorosos padrões de acessibilidade. Utilizamos uma paleta de cores institucional que transmite saúde e segurança (Verdes, Laranjas e Amarelos), contrastando com tons escuros para garantir a legibilidade.
+### 🎨 Abordagem de UI (User Interface)
+* **Identidade Visual Reativa:** Cores calmas e profissionais (Verde primary, Amarelo tertiary) alinhadas a aplicações de saúde públicas.
+* **Carrossel de Campanhas:** Swiper integrado para exibição dinâmica de notícias e dicas de saúde, mantendo o usuário engajado.
+* **Status Dinâmico:** Algoritmos em TypeScript calculam em tempo real se uma vacina está **Em Dia**, **No Prazo** ou **Atrasada**, usando Badges e ícones coloridos para leitura rápida.
 
-Para evitar que o aplicativo parecesse um "simulador esticado" quando aberto em telas de computador, implementei um **Web Wrapper**. Isso garante que a aplicação mantenha uma largura ideal, centralizando o conteúdo de forma elegante e preservando a experiência mobile-first em qualquer dispositivo.
-
-![App Ganhando Forma](rascunho-processo.jpeg)
-*Evolução visual.*
-
----
-
-## ⚙️ 5. Funcionalidades Desenvolvidas
-Até o momento, o núcleo da aplicação conta com:
-* **Carrossel Nativo Turbinado:** Utilização do `Swiper.js` com *autoplay* e navegação clicável para exibição de Campanhas de Saúde.
-* **Lista de Vacinas Dinâmica:** Motor lógico que analisa o status de cada vacina (`concluida`, `pendente`, `atrasada`) e altera visualmente a cor da interface (`[ngClass]`) para alertar o usuário.
-* **Banco de Dados em Tempo Real:** Conexão reativa via *Services* (POO) com o Google Firestore.
+### ♿ Acessibilidade de Ponta
+Diferente de muitas aplicações, a acessibilidade no VaciNaInfância é nativa e opcional:
+1.  **Menu de Acessibilidade:** Localizado no header.
+3.  **Alto Contraste:** Força cores agressivas (Preto/Amarelo) para usuários com baixa visão.
+4.  **Fonte Ampliada:** Aumenta proporcionalmente todos os textos da aplicação.
+5.  **Libras:** VLibras.
 
 ---
 
-### 👨‍💻 Autor
-**Ethan Faccioli**
+## ⚙️ Engenharia e Arquitetura de Dados
+
+O projeto utiliza uma arquitetura híbrida para maximizar desempenho e segurança.
+
+### 🔥 Firebase Firestore (Nuvem em Tempo Real)
+Utilizamos o Firebase como nosso "Banco de Dados Mestre" para os dados críticos:
+* **Coleção `usuarios`:** Armazena dados de login (CPF, Nome, Telefone, Senha Criptografada em mock) de Responsáveis.
+* **Coleção `criancas`:** Armazena os perfis globais (Nome, Data Nasc, CPF da Criança, CPF do Resp).
+* **Coleção `vacinas`:** O core da nossa regra de negócio. Cada registro de vacina aplicada é amarrado ao **CPF da Criança** (não ao ID da coleção), garantindo a persistência histórica eterna.
+
+### 💾 LocalStorage (Armazenamento de Sessão e Assets)
+* **Gestão de Sessão:** Armazena tokens de login (`cpfLogado`, `nomeLogado`, `tipoAcesso`) para persistência de acesso sem re-autenticação.
+* **Assets Pesados (Avatares):** As fotos de perfil das crianças são salvas em Base64 no LocalStorage vinculado ao ID da criança, otimizando o tráfego de rede do Firebase.
+
+---
+
+## 🧑‍⚕️ Área do Profissional de Saúde (SUS)
+
+Criamos uma interface robusta para a equipe médica:
+1.  **Acesso Restrito:** Login via credenciais profissionais.
+2.  **Busca Poderosa por CPF:** Permite que o médico localize qualquer caderneta na base nacional do SUS digitando apenas o CPF da criança.
+3.  **Registro de Vacinas:** Interface dedicada para médicos adicionarem novas vacinas (Nome da Vacina, Data, Situação) diretamente na caderneta na nuvem, com Badges dinâmicos de status.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+* **Core:** Ionic v7 + Angular v17 (Standalone Components)
+* **Banco de Dados:** Firebase Firestore
+* **Swiper Element:** Para o carrossel de campanhas.
+* **Ionicons:** Para ícones vetoriais.
+
+---
+
+## 🚀 Próximos Passos
+
+* [ ] Integração de Notificações Push (Avisar pais sobre vacinas atrasadas).
+* [ ] Geração de Carteira de Vacinação em PDF oficial.
+* [ ] Geolocalização de Postos de Saúde mais próximos.
+
+---
+
+<p align="center">Desenvolvido com ❤️ para Cyrrus - Desafio de Estágio</p>
