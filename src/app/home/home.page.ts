@@ -322,6 +322,14 @@ export class HomePage implements OnInit {
       document.body.classList.toggle('fonte-ampliada');
     }
   }
+
+  // Limpa o estado da busca para o médico procurar outro paciente
+  voltarPesquisa() {
+    this.criancaBuscada = false;
+    this.criancaAtual = '';
+    this.cpfBusca = '';
+    this.listaCriancasExibidas = [];
+  }
   
   logout() { 
     localStorage.removeItem('tipoAcesso');
