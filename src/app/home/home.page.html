@@ -1,10 +1,17 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="toolbar-principal" style="padding-top: 15px;">
+  <ion-toolbar [style.--background]="isAltoContraste ? '#000000' : '#473C33'" style="min-height: 40px; --min-height: 40px; padding: 0 10px;">
+    <div [style.color]="isAltoContraste ? '#FFFF00' : '#FFFFFF'" style="display: flex; justify-content: flex-end; gap: 15px; font-size: 13px; font-weight: 600; width: 100%;">
+      <span (click)="toggleAcessibilidade('fonte')" style="cursor: pointer;"><ion-icon name="text-outline"></ion-icon> Fonte</span>
+      <span (click)="toggleAcessibilidade('contraste')" style="cursor: pointer;"><ion-icon name="contrast-outline"></ion-icon> Contraste</span>
+    </div>
+  </ion-toolbar>
+
+  <ion-toolbar class="toolbar-principal">
     <ion-title style="font-weight: 900; font-size: 24px; letter-spacing: -1px;">
       <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span class="texto-infancia">INFÂNCIA</span>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button color="dark" class="btn-perfil" (click)="logout()">
+      <ion-button [color]="isAltoContraste ? 'light' : 'dark'" class="btn-perfil" (click)="logout()">
         <ion-icon name="log-out-outline" style="font-size: 28px;"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -18,7 +25,7 @@
         <ion-avatar slot="start" (click)="!isProfissional && uploadFoto.click()" [style.cursor]="isProfissional ? 'default' : 'pointer'" style="position: relative; border: 2px solid white;">
           <img [src]="getCriancaAtual().fotoPerfil || 'https://ionicframework.com/docs/img/demos/avatar.svg'" alt="Avatar da criança" style="object-fit: cover;" />
           @if (!isProfissional) {
-            <div style="position: absolute; bottom: -2px; right: -2px; background: #fff; border-radius: 50%; padding: 2px;">
+            <div [style.background]="isAltoContraste ? '#000000' : '#ffffff'" style="position: absolute; bottom: -2px; right: -2px; border-radius: 50%; padding: 2px;">
               <ion-icon name="camera-outline" color="dark" style="font-size: 14px;"></ion-icon>
             </div>
           }
@@ -28,12 +35,12 @@
       @if (!isProfissional) {
         <ion-select interface="action-sheet" [value]="criancaAtual" (ionChange)="mudarCrianca($event)" cancelText="Cancelar" style="flex: 1;">
           <div slot="label" style="font-size: 12px; font-weight: 400; opacity: 0.9;">Carteira de Vacinação:</div>
-          @for (crianca of listaCriancas; track crianca.id) {
+          @for (crianca of listaCriancasExibidas; track crianca.id) {
             <ion-select-option [value]="crianca.id">{{ crianca.primeiroNome }} ({{ crianca.labelIdade }})</ion-select-option>
           }
           <ion-select-option value="NOVA_CRIANCA" style="font-weight: bold; color: var(--ion-color-dark);">➕ Adicionar Criança...</ion-select-option>
         </ion-select>
-        <ion-button fill="clear" color="dark" slot="end" (click)="gerenciarCrianca()" [disabled]="!criancaAtual">
+        <ion-button fill="clear" color="dark" slot="end" (click)="gerenciarCrianca()" [disabled]="!criancaAtual" [style.background]="isAltoContraste ? '#000000' : 'transparent'" style="border-radius: 4px;">
           <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
         </ion-button>
       } @else {
@@ -54,13 +61,13 @@
     @if (isProfissional && !criancaBuscada) {
       <div style="text-align: center; margin-top: 100px; padding: 20px;">
         <ion-icon name="medical-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
-        <h2 style="color: var(--ion-color-dark); font-weight: 800;">Acesso Profissional</h2>
+        <h2 style="font-weight: 800; color: #222;">Acesso Profissional</h2>
         <p style="color: #666;">Digite o CPF do paciente na barra superior para acessar a caderneta e registrar as vacinas da criança.</p>
       </div>
-    } @else if (!isProfissional && listaCriancas.length === 0) {
+    } @else if (!isProfissional && listaCriancasExibidas.length === 0) {
       <div style="text-align: center; margin-top: 100px; padding: 20px;">
-        <h2 style="color: var(--ion-color-dark); font-weight: 800;">Bem-vindo(a)!</h2>
-        <p style="color: #666;">Você ainda não cadastrou nenhuma caderneta.</p>
+        <h2 style="font-weight: 800; color: #222;">Bem-vindo(a)!</h2>
+        <p style="color: #666;">Você ainda não possui crianças cadastradas no sistema.</p>
         <ion-button expand="block" color="secondary" style="margin-top: 20px;" (click)="mudarCrianca({detail: {value: 'NOVA_CRIANCA'}})">
           <ion-icon name="add" slot="start"></ion-icon>
           Adicionar Primeira Criança
@@ -69,22 +76,25 @@
     } @else {
       @if (!isProfissional) {
         <div class="campaign-section">
-          <h2 class="section-title">Fique de Olho</h2>
+          <h2 class="section-title" style="color: #222;">Fique de Olho</h2>
           <swiper-container autoplay-delay="4000" autoplay-disable-on-interaction="false" pagination="true" pagination-clickable="true" slides-per-view="1.15" centered-slides="true" space-between="15" style="--swiper-pagination-color: var(--ion-color-dark); --swiper-pagination-bullet-inactive-color: #888888; --swiper-pagination-bullet-inactive-opacity: 0.5;" breakpoints='{"768": {"slidesPerView": 2.2, "centeredSlides": false}}'>
+            
             <swiper-slide>
               <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
                 <img src="assets/campanha1.jpg" alt="Campanha" class="card-image" style="height: 140px; object-fit: cover; width: 100%;"/>
-                <ion-card-header><ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">Gotinha Salva-Vidas</ion-card-title></ion-card-header>
-                <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!</ion-card-content>
+                <ion-card-header><ion-card-title style="color: #222; font-weight: 800; font-size: 18px;">Gotinha Salva-Vidas</ion-card-title></ion-card-header>
+                <ion-card-content style="color: #222; font-weight: 500;">A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!</ion-card-content>
               </ion-card>
             </swiper-slide>
+
             <swiper-slide>
               <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
                 <img src="assets/campanha2.jpg" alt="Campanha" class="card-image" style="height: 140px; object-fit: cover; width: 100%;"/>
-                <ion-card-header><ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">Maio Laranja</ion-card-title></ion-card-header>
-                <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.</ion-card-content>
+                <ion-card-header><ion-card-title style="color: #222; font-weight: 800; font-size: 18px;">Maio Laranja</ion-card-title></ion-card-header>
+                <ion-card-content style="color: #222; font-weight: 500;">Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.</ion-card-content>
               </ion-card>
             </swiper-slide>
+
           </swiper-container>
         </div>
       }
@@ -92,13 +102,13 @@
       <div style="padding: 10px 15px;">
         <ion-card style="margin: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; background: #ffffff;">
           <ion-card-content style="padding: 15px;">
-            <h3 style="margin-top: 0; color: var(--ion-color-dark); font-weight: 800; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Dados do Paciente</h3>
+            <h3 style="margin-top: 0; color: #222; font-weight: 800; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Dados do Paciente</h3>
             <p style="margin: 8px 0 4px; color: #555; font-size: 14px;"><strong>Criança:</strong> {{ getCriancaAtual().nome }}</p>
             <p style="margin: 4px 0; color: #555; font-size: 14px;"><strong>CPF da Criança:</strong> {{ getCriancaAtual().cpf }}</p>
             <p style="margin: 4px 0 0; color: #555; font-size: 14px;"><strong>Nascimento:</strong> {{ formatarData(getCriancaAtual().dataNascimento) }}</p>
             
             <hr style="border-top: 1px dashed #ccc; margin: 12px 0;">
-            <h4 style="margin: 0 0 8px; color: var(--ion-color-dark); font-weight: 700; font-size: 14px;">Vínculo Familiar</h4>
+            <h4 style="margin: 0 0 8px; color: #222; font-weight: 700; font-size: 14px;">Vínculo Familiar</h4>
             <p style="margin: 0 0 4px; color: #555; font-size: 14px;"><strong>Responsável:</strong> {{ getCriancaAtual().nomeResponsavel || 'Não informado' }}</p>
             <p style="margin: 0 0 4px; color: #555; font-size: 14px;"><strong>CPF do Resp.:</strong> {{ getCriancaAtual().cpfResponsavel || 'Não informado' }}</p>
             <p style="margin: 0; color: #555; font-size: 14px;"><strong>Telefone:</strong> {{ getCriancaAtual().telefoneResponsavel || 'Não informado' }}</p>
@@ -107,13 +117,13 @@
       </div>
 
       <div class="vaccines-section">
-        <h2 class="section-title">Histórico de Vacinas</h2>
+        <h2 class="section-title" style="color: #222;">Histórico de Vacinas</h2>
         <ion-list class="vaccine-list" lines="none">
           @if (listaVacinasFiltradas.length === 0) {
             <div class="empty-state">
-              <ion-icon name="medical-outline"></ion-icon>
-              <h3>Nenhuma vacina por aqui</h3>
-              <p>O histórico desta caderneta está vazio no momento.</p>
+              <ion-icon name="medical-outline" style="color: #888;"></ion-icon>
+              <h3 style="color: #555;">Nenhuma vacina por aqui</h3>
+              <p style="color: #888;">O histórico desta caderneta está vazio no momento.</p>
             </div>
           }
 
@@ -129,7 +139,7 @@
                   <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
                 }
                 @if (vacina.status === 'pendente') {
-                  <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
+                  <ion-badge color="secondary" slot="end" style="color: #222">No Prazo</ion-badge>
                   <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
                 }
                 @if (vacina.status === 'atrasada') {
@@ -195,7 +205,7 @@
     </ng-template>
   </ion-modal>
 
-  <ion-modal [isOpen]="isModalCriancaOpen" [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6]">
+  <ion-modal [isOpen]="isModalCriancaOpen" [initialBreakpoint]="0.7" [breakpoints]="[0, 0.7]">
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar color="dark">

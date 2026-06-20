@@ -5,7 +5,7 @@ import { addIcons } from 'ionicons';
 import { register } from 'swiper/element/bundle';
 import { Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonSelect, IonSelectOption, IonItem, IonButtons, IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonLabel, IonBadge, IonFab, IonFabButton, IonModal, IonInput, ToastController, IonItemSliding, IonItemOptions, IonItemOption, AlertController, ActionSheetController } from '@ionic/angular/standalone';
-import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline, cameraOutline, settingsOutline, createOutline, searchOutline } from 'ionicons/icons';
+import { personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline, cameraOutline, settingsOutline, createOutline, searchOutline, contrastOutline, textOutline } from 'ionicons/icons';
 import { VacinaService } from '../services/vacina.service';
 
 register();
@@ -27,7 +27,8 @@ export class HomePage implements OnInit {
 
   listaTodasVacinas: any[] = []; 
   listaVacinasFiltradas: any[] = []; 
-  listaCriancas: any[] = [];
+  listaCriancasCompleta: any[] = [];
+  listaCriancasExibidas: any[] = [];
   
   criancaAtual: string = '';
   isModalCriancaOpen: boolean = false;
@@ -43,10 +44,9 @@ export class HomePage implements OnInit {
   novaVacina = { nome: '', data: '', status: 'pendente' };
 
   constructor() {
-    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline, cameraOutline, settingsOutline, createOutline, searchOutline });
+    addIcons({ personCircleOutline, checkmarkCircle, timeOutline, alertCircle, add, close, trashOutline, medicalOutline, logOutOutline, cameraOutline, settingsOutline, createOutline, searchOutline, contrastOutline, textOutline });
   }
 
-  // Caixa de notificação nativa para a Home
   async mostrarAlerta(titulo: string, mensagem: string) {
     const alerta = await this.alertController.create({ header: titulo, message: mensagem, buttons: ['OK'] });
     await alerta.present();
@@ -57,37 +57,70 @@ export class HomePage implements OnInit {
     this.isProfissional = tipo === 'medico';
     this.criancaBuscada = false;
     this.cpfBusca = '';
-    this.carregarCriancasDoBanco();
+    this.isAltoContraste = document.body.classList.contains('alto-contraste');
   }
 
   ngOnInit() {
+    this.vacinaService.getCriancas().subscribe(criancas => {
+      this.listaCriancasCompleta = criancas.map(c => ({
+        ...c,
+        primeiroNome: c.nome.split(' ')[0],
+        labelIdade: this.calcularIdadeString(c.dataNascimento)
+      }));
+      this.filtrarAcessoEPerfil();
+    });
+
     this.vacinaService.getVacinas().subscribe((dados: any[]) => {
       this.listaTodasVacinas = dados.map(v => {
         let statusTratado = v.status ? v.status.toLowerCase().trim() : 'pendente';
         statusTratado = statusTratado.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         return { ...v, status: this.calcularStatusDinamicamente(v.data, statusTratado), crianca: v.crianca || '' };
       });
-      this.atualizarFiltroCrianca();
+      this.atualizarFiltroVacinas();
     });
   }
 
-  carregarCriancasDoBanco() {
-    const db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
+  filtrarAcessoEPerfil() {
     const cpfLogado = localStorage.getItem('cpfLogado');
+    const tipoAcesso = localStorage.getItem('tipoAcesso');
     
     if (this.isProfissional) {
-      this.listaCriancas = this.criancaBuscada ? db.filter((c: any) => c.cpf === this.cpfBusca) : [];
+      this.listaCriancasExibidas = this.criancaBuscada ? this.listaCriancasCompleta.filter((c: any) => c.cpf === this.cpfBusca) : [];
     } else {
-      this.listaCriancas = db.filter((c: any) => c.cpfResponsavel === cpfLogado);
-      if (this.listaCriancas.length > 0) this.criancaAtual = this.listaCriancas[0].id;
-      else this.criancaAtual = '';
+      this.listaCriancasExibidas = this.listaCriancasCompleta.filter((c: any) => c.cpfResponsavel === cpfLogado);
+      
+      // AUTO-CRIAÇÃO NO FIREBASE: Se for a Cyrrus e não houver criança, cria direto no banco!
+      if (tipoAcesso === 'cyrrus' && this.listaCriancasExibidas.length === 0) {
+        if (this.salvando) return; // Evita duplicação
+        this.salvando = true;
+        
+        const cyrrusOficial = {
+          nome: 'Cyrrus Next Systems Ltda',
+          cpf: '999.999.999-99',
+          dataNascimento: '2025-03-11',
+          nomeResponsavel: 'Paula Raquel',
+          cpfResponsavel: 'CYRRUS_ADMIN',
+          telefoneResponsavel: '(11) 97288-3895'
+        };
+        
+        this.vacinaService.addCrianca(cyrrusOficial).then(() => {
+          this.salvando = false;
+        });
+        return; // Retorna e aguarda o Firebase recarregar a tela automaticamente
+      }
+
+      if (this.listaCriancasExibidas.length > 0 && !this.criancaAtual) {
+        this.criancaAtual = this.listaCriancasExibidas[0].id;
+      } else if (this.listaCriancasExibidas.length === 0) {
+        this.criancaAtual = '';
+      }
     }
     
-    this.listaCriancas.forEach(c => {
+    this.listaCriancasExibidas.forEach(c => {
       const fotoSalva = localStorage.getItem('foto_' + c.id);
       if (fotoSalva) c.fotoPerfil = fotoSalva;
     });
-    this.atualizarFiltroCrianca();
+    this.atualizarFiltroVacinas();
   }
 
   formatarCPFBusca(event: any) {
@@ -102,13 +135,11 @@ export class HomePage implements OnInit {
   }
 
   buscarPaciente() {
-    const db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
-    const paciente = db.find((c: any) => c.cpf === this.cpfBusca);
+    const paciente = this.listaCriancasCompleta.find((c: any) => c.cpf === this.cpfBusca);
     if (paciente) {
       this.criancaBuscada = true;
-      this.carregarCriancasDoBanco();
       this.criancaAtual = paciente.id;
-      this.atualizarFiltroCrianca();
+      this.filtrarAcessoEPerfil();
     } else {
       this.mostrarAlerta('Não Encontrado', 'Paciente não localizado no SUS.');
       this.criancaBuscada = false;
@@ -116,7 +147,7 @@ export class HomePage implements OnInit {
   }
 
   getCriancaAtual() {
-    return this.listaCriancas.find(c => c.id === this.criancaAtual) || this.listaCriancas[0] || {};
+    return this.listaCriancasExibidas.find(c => c.id === this.criancaAtual) || this.listaCriancasExibidas[0] || {};
   }
 
   calcularIdadeString(dataNasc: string): string {
@@ -164,8 +195,9 @@ export class HomePage implements OnInit {
     if (arquivo && this.criancaAtual) {
       const leitor = new FileReader();
       leitor.onload = (e: any) => {
-        localStorage.setItem('foto_' + this.criancaAtual, e.target.result);
-        this.carregarCriancasDoBanco();
+        this.vacinaService.atualizarCrianca(this.criancaAtual, { fotoPerfil: e.target.result }).then(() => {
+          this.filtrarAcessoEPerfil();
+        });
       };
       leitor.readAsDataURL(arquivo);
     }
@@ -185,7 +217,7 @@ export class HomePage implements OnInit {
       event.target.value = this.criancaAtual; 
     } else {
       this.criancaAtual = valorEscolhido;
-      this.atualizarFiltroCrianca();
+      this.atualizarFiltroVacinas();
     }
   }
 
@@ -211,15 +243,11 @@ export class HomePage implements OnInit {
   }
 
   async excluirCriancaAtual(crianca: any) {
-    if (this.listaCriancas.length <= 1) {
-      this.mostrarAlerta('Atenção', 'Você precisa manter pelo menos uma caderneta ativa!');
-      return;
-    }
-    let db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
-    db = db.filter((c: any) => c.id !== crianca.id);
-    localStorage.setItem('db_criancas', JSON.stringify(db));
-    localStorage.removeItem('foto_' + crianca.id);
-    this.carregarCriancasDoBanco();
+    this.vacinaService.deletarCrianca(crianca.id).then(() => {
+      localStorage.removeItem('foto_' + crianca.id);
+      this.criancaAtual = '';
+      this.filtrarAcessoEPerfil();
+    });
   }
 
   salvarNovaCrianca() {
@@ -227,34 +255,31 @@ export class HomePage implements OnInit {
       this.mostrarAlerta('Atenção', 'Preencha os campos obrigatórios!');
       return;
     }
-    
-    let db = JSON.parse(localStorage.getItem('db_criancas') || '[]');
-
     if (this.modoEdicaoCrianca) {
-      const index = db.findIndex((c: any) => c.id === this.novaCriancaForm.id);
-      if (index !== -1) {
-        db[index] = { ...this.novaCriancaForm, primeiroNome: this.novaCriancaForm.nome.split(' ')[0], labelIdade: this.calcularIdadeString(this.novaCriancaForm.dataNascimento) };
-      }
+      this.vacinaService.atualizarCrianca(this.novaCriancaForm.id, this.novaCriancaForm).then(() => {
+        this.isModalCriancaOpen = false;
+        this.filtrarAcessoEPerfil();
+      });
     } else {
-      if (db.find((c: any) => c.cpf === this.novaCriancaForm.cpf)) {
+      if (this.listaCriancasCompleta.find((c: any) => c.cpf === this.novaCriancaForm.cpf)) {
         this.mostrarAlerta('Ops!', 'Criança já registrada no SUS!');
         return;
       }
-      const novoId = this.novaCriancaForm.nome.toLowerCase().replace(/\s/g, '') + Math.floor(Math.random() * 1000);
-      db.push({ 
-        ...this.novaCriancaForm, id: novoId, primeiroNome: this.novaCriancaForm.nome.split(' ')[0], 
-        labelIdade: this.calcularIdadeString(this.novaCriancaForm.dataNascimento), fotoPerfil: 'https://ionicframework.com/docs/img/demos/avatar.svg'
+      this.vacinaService.addCrianca(this.novaCriancaForm).then((ref) => {
+        this.criancaAtual = ref.id;
+        this.isModalCriancaOpen = false;
+        this.filtrarAcessoEPerfil();
       });
-      this.criancaAtual = novoId;
     }
-    
-    localStorage.setItem('db_criancas', JSON.stringify(db));
-    this.carregarCriancasDoBanco();
-    this.isModalCriancaOpen = false;
   }
 
-  atualizarFiltroCrianca() {
-    this.listaVacinasFiltradas = this.listaTodasVacinas.filter(v => v.crianca === this.criancaAtual);
+  atualizarFiltroVacinas() {
+    const criancaAtiva = this.getCriancaAtual();
+    if (criancaAtiva && criancaAtiva.cpf) {
+      this.listaVacinasFiltradas = this.listaTodasVacinas.filter(v => v.crianca === criancaAtiva.cpf);
+    } else {
+      this.listaVacinasFiltradas = [];
+    }
   }
 
   salvarVacina(modal: any) {
@@ -265,7 +290,7 @@ export class HomePage implements OnInit {
     this.salvando = true;
     const [ano, mes, dia] = this.novaVacina.data.split('-');
     const dataFormatada = `${dia}/${mes}/${ano}`;
-    const pacote = { nome: this.novaVacina.nome, data: dataFormatada, status: this.novaVacina.status, crianca: this.criancaAtual };
+    const pacote = { nome: this.novaVacina.nome, data: dataFormatada, status: this.novaVacina.status, crianca: this.getCriancaAtual().cpf };
 
     this.vacinaService.addVacina(pacote).then(async () => {
       this.novaVacina = { nome: '', data: '', status: 'pendente' };
@@ -275,7 +300,7 @@ export class HomePage implements OnInit {
       await toast.present();
     }).catch(erro => { 
       this.salvando = false; 
-      this.mostrarAlerta('Erro', 'Erro de sincronização com o banco de dados.'); 
+      this.mostrarAlerta('Erro', 'Erro de sincronização.'); 
     });
   }
 
@@ -290,8 +315,12 @@ export class HomePage implements OnInit {
   }
 
   toggleAcessibilidade(tipo: string) { 
-    document.body.classList.toggle(tipo === 'contraste' ? 'alto-contraste' : 'fonte-ampliada'); 
-    if (tipo === 'contraste') this.isAltoContraste = document.body.classList.contains('alto-contraste');
+    if (tipo === 'contraste') {
+      document.body.classList.toggle('alto-contraste');
+      this.isAltoContraste = document.body.classList.contains('alto-contraste');
+    } else if (tipo === 'fonte') {
+      document.body.classList.toggle('fonte-ampliada');
+    }
   }
   
   logout() { 
