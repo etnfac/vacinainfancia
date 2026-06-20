@@ -168,14 +168,13 @@ export class LoginPage implements OnInit {
   async esqueciSenha() {
     const alert = await this.alertController.create({
       header: 'Recuperar Senha',
-      message: 'Digite seu CPF (apenas números) para receber a senha:',
+      message: 'Digite o seu CPF (apenas números) para receber a senha:',
       inputs: [{ 
         name: 'cpfDigitado', 
-        type: 'tel', 
-        placeholder: '000.000.000-00',
+        type: 'number', // Força o teclado apenas de números nos telemóveis
+        placeholder: 'Ex: 000.000.000-00',
         attributes: {
-          maxlength: 11, // Trava o tamanho máximo
-          oninput: "this.value = this.value.replace(/[^0-9]/g, '')" // Expulsa qualquer letra instantaneamente
+          inputmode: 'numeric'
         }
       }],
       buttons: [
@@ -183,13 +182,24 @@ export class LoginPage implements OnInit {
         {
           text: 'Solicitar SMS',
           handler: (dados) => {
-            if (!dados.cpfDigitado) return;
-            const cpfLimpo = dados.cpfDigitado.replace(/\D/g, '');
+            if (!dados.cpfDigitado) return false;
+            
+            // Remove qualquer letra que um teclado de PC consiga forçar
+            const cpfLimpo = String(dados.cpfDigitado).replace(/\D/g, '');
+            
+            // Bloqueia o pop-up e não deixa fechar se não tiver 11 números
+            if (cpfLimpo.length !== 11) {
+              this.mostrarAlerta('CPF Inválido', 'Por favor, digite os 11 números do seu CPF.');
+              return false; // Retornar false é o truque do Ionic para travar o alerta aberto!
+            }
+
             const usuario = this.listaUsuariosFirebase.find((u: any) => u.cpf.replace(/\D/g, '') === cpfLimpo);
             if (usuario) {
-              this.mostrarAlerta('📱 SMS RECEBIDO!', `Para: ${usuario.telefone}\n\nSua senha do VacinaInfância é: ${usuario.senha}`);
+              this.mostrarAlerta('📱 SMS RECEBIDO!', `Para: ${usuario.telefone}\n\nA sua senha do VacinaInfância é: ${usuario.senha}`);
+              return true; // Sucesso, pode fechar o pop-up
             } else {
-              this.mostrarAlerta('Não Encontrado', 'CPF não localizado.');
+              this.mostrarAlerta('Não Encontrado', 'CPF não localizado no sistema.');
+              return false; // Trava o pop-up novamente para a pessoa corrigir
             }
           }
         }
