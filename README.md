@@ -17,7 +17,7 @@ O VaciNaInfância não é apenas um app de lembrete. É um ecossistema completo 
 
 ## 💡 UX & UI: Design Centrado no Usuário e Acessibilidade
 
-O desenvolvimento do VacinaInfância seguiu rigorosos padrões de Design Thinking, focando nas dores reais de pais e médicos.
+O desenvolvimento do VaciNaInfância seguiu rigorosos padrões de Design Thinking, focando nas dores reais de pais e médicos.
 
 ### 🧠 Abordagem de UX (User Experience)
 * **Fluxo Simplificado:** Reduzimos a fricção no cadastro de crianças, permitindo que responsáveis adicionem dependentes em segundos.
@@ -30,11 +30,11 @@ O desenvolvimento do VacinaInfância seguiu rigorosos padrões de Design Thinkin
 * **Status Dinâmico:** Algoritmos em TypeScript calculam em tempo real se uma vacina está **Em Dia**, **No Prazo** ou **Atrasada**, usando Badges e ícones coloridos para leitura rápida.
 
 ### ♿ Acessibilidade de Ponta
-Diferente de muitas aplicações, a acessibilidade no VacinaInfância é nativa e opcional:
-1.  **Menu de Acessibilidade Cego:** Localizado no header, adaptando as cores baseadas no tema para nunca sumir.
-2.  **Modo Escuro Opcional:** Padrão claro, com opção de escuro, gerenciado por classe booleana estrita para perfeito funcionamento.
+Diferente de muitas aplicações, a acessibilidade no VaciNaInfância é nativa e opcional:
+1.  **Menu de Acessibilidade:** Localizado no header.
 3.  **Alto Contraste:** Força cores agressivas (Preto/Amarelo) para usuários com baixa visão.
 4.  **Fonte Ampliada:** Aumenta proporcionalmente todos os textos da aplicação.
+5.  **Libras:** VLibras.
 
 ---
 
@@ -72,7 +72,7 @@ Criamos uma interface robusta para a equipe médica:
 
 ---
 
-## 🚀 Próximos Passos (Cyrrus Vision)
+## 🚀 Próximos Passos
 
 * [ ] Integração de Notificações Push (Avisar pais sobre vacinas atrasadas).
 * [ ] Geração de Carteira de Vacinação em PDF oficial.
@@ -80,4 +80,4 @@ Criamos uma interface robusta para a equipe médica:
 
 ---
 
-<p align="center">Desenvolvido com ❤️ para Cyrrus - Ministério da Saúde</p>
+<p align="center">Desenvolvido com ❤️ para Cyrrus - Desafio de Estágio</p>
