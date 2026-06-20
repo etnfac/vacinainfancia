@@ -1,44 +1,68 @@
 <ion-content style="--background: #FAFAFA;">
   <div class="login-container">
     
-    <!-- Logo -->
     <div class="logo-container">
       <h1 style="font-weight: 900; font-size: 32px; letter-spacing: -1px; text-align: center; margin: 0;">
         <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span class="texto-infancia">INFÂNCIA</span>
       </h1>
-      <p class="subtitle">Acesso Seguro do Responsável</p>
+      <p class="subtitle">Acesso Seguro</p>
     </div>
 
-    <!-- Formulário -->
     <div class="form-container">
+      @if (isCadastro) {
+        <ion-item class="form-item" lines="none" style="margin-bottom: 15px;">
+          <ion-icon name="person-add-outline" slot="start" color="medium"></ion-icon>
+          <ion-input type="text" label="Nome Completo do Responsável" labelPlacement="floating" placeholder="Seu nome" [(ngModel)]="nome"></ion-input>
+        </ion-item>
+        <ion-item class="form-item" lines="none" style="margin-bottom: 15px;">
+          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+          <ion-input type="tel" label="Telefone com DDD" labelPlacement="floating" placeholder="(00) 00000-0000" [value]="telefone" (ionInput)="formatarTelefone($event)" maxlength="15"></ion-input>
+        </ion-item>
+      }
+
       <ion-item class="form-item" lines="none">
         <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
-        <ion-input type="tel" label="CPF" labelPlacement="floating" placeholder="000.000.000-00" [value]="cpf" (ionInput)="formatarCPF($event)" maxlength="14"></ion-input>
+        <ion-input type="tel" inputmode="numeric" label="CPF" labelPlacement="floating" placeholder="000.000.000-00" [value]="cpf" (ionInput)="formatarCPF($event)" maxlength="14"></ion-input>
       </ion-item>
 
       <ion-item class="form-item" lines="none" style="margin-top: 15px;">
         <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
-        <ion-input type="password" label="Senha" labelPlacement="floating" placeholder="Sua senha secreta" [(ngModel)]="senha"></ion-input>
+        <ion-input type="password" label="Senha" labelPlacement="floating" placeholder="Sua senha secreta" [(ngModel)]="senha" (ionInput)="validarSenha()"></ion-input>
       </ion-item>
 
-      <ion-button expand="block" color="primary" class="btn-login" (click)="fazerLogin()">
-        Entrar no Sistema
-      </ion-button>
-      
-      <!-- Botão do Gov.br -->
-      <div style="text-align: center; margin: 25px 0; color: #888; font-size: 14px; font-weight: 500;">
-        ou acesse com
+      @if (isCadastro) {
+        <div style="font-size: 12px; margin-top: 10px; padding: 0 10px; font-weight: 500;">
+          <div [style.color]="check.tamanho ? '#2dd36f' : '#888'"><ion-icon [name]="check.tamanho ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon> Mínimo de 8 caracteres</div>
+          <div [style.color]="check.maiuscula ? '#2dd36f' : '#888'"><ion-icon [name]="check.maiuscula ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon> Pelo menos uma letra maiúscula</div>
+          <div [style.color]="check.numero ? '#2dd36f' : '#888'"><ion-icon [name]="check.numero ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon> Pelo menos um número</div>
+          <div [style.color]="check.especial ? '#2dd36f' : '#888'"><ion-icon [name]="check.especial ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon> Um caractere especial (!@#$%&)</div>
+        </div>
+      }
+
+      <div style="margin-top: 15px; display: flex; justify-content: space-between; padding: 0 5px;">
+        <a (click)="toggleCadastro()" style="color: var(--ion-color-secondary); font-weight: 600; font-size: 14px; cursor: pointer;">
+          {{ isCadastro ? 'Já tenho uma conta' : 'Criar minha conta' }}
+        </a>
+        <a (click)="esqueciSenha()" style="color: var(--ion-color-primary); font-weight: 600; font-size: 14px; cursor: pointer;">Esqueci a senha</a>
       </div>
 
-      <ion-button expand="block" class="btn-gov" (click)="loginGov()">
-        <img src="https://logodownload.org/wp-content/uploads/2018/02/gov-br-logo.png" alt="Gov.br" style="height: 20px; margin-right: 10px;">
-        Entrar com gov.br
-      </ion-button>
+      <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+        <ion-button expand="block" color="primary" class="btn-login" (click)="fazerLogin('pai')">
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          {{ isCadastro ? 'Cadastrar e Entrar' : 'Entrar como Responsável' }}
+        </ion-button>
+  
+        @if (!isCadastro) {
+          <ion-button expand="block" color="secondary" class="btn-login" (click)="fazerLogin('medico')" style="--color: #222;">
+            <ion-icon name="medical-outline" slot="start"></ion-icon>
+            Entrar como Profissional
+          </ion-button>
+        }
+      </div>
     </div>
     
-    <!-- Rodapé -->
     <div class="footer-login">
-      <p>VACINAINFÂNCIA - Ethan Faccioli for Cyrrus</p>
+      <p>Ministério da Saúde - Sistema Oficial</p>
     </div>
 
   </div>

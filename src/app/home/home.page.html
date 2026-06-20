@@ -1,19 +1,8 @@
-<!-- CABEÇALHO -->
 <ion-header class="ion-no-border">
-  
-  <ion-toolbar class="barra-acessibilidade" color="dark" style="min-height: 35px; --min-height: 35px; padding: 0 15px;">
-    <div style="display: flex; justify-content: flex-end; gap: 20px; font-size: 13px; font-weight: 600;">
-      <span (click)="trocarIdioma()" style="cursor: pointer;">🌐 Idioma</span>
-      <span (click)="toggleAcessibilidade('fonte')" style="cursor: pointer;">A+ Fonte</span>
-      <span (click)="toggleAcessibilidade('contraste')" style="cursor: pointer;">◐ Alto Contraste</span>
-    </div>
-  </ion-toolbar>
-
-  <ion-toolbar class="toolbar-principal">
+  <ion-toolbar class="toolbar-principal" style="padding-top: 15px;">
     <ion-title style="font-weight: 900; font-size: 24px; letter-spacing: -1px;">
       <span style="color: var(--ion-color-primary);">VACI</span><span style="color: var(--ion-color-tertiary);">NA</span><span class="texto-infancia">INFÂNCIA</span>
     </ion-title>
-    
     <ion-buttons slot="end">
       <ion-button color="dark" class="btn-perfil" (click)="logout()">
         <ion-icon name="log-out-outline" style="font-size: 28px;"></ion-icon>
@@ -24,137 +13,141 @@
   <ion-toolbar color="primary">
     <ion-item color="primary" lines="none">
       
-      <input type="file" #uploadFoto (change)="carregarFotoPerfil($event)" accept="image/*" style="display: none;" />
-      
-      <ion-avatar slot="start" (click)="uploadFoto.click()" style="cursor: pointer; position: relative; border: 2px solid white;">
-        <img [src]="fotoPerfil" alt="Avatar da criança" style="object-fit: cover;" />
-        <div style="position: absolute; bottom: -2px; right: -2px; background: #fff; border-radius: 50%; padding: 2px;">
-          <ion-icon name="camera-outline" color="dark" style="font-size: 14px;"></ion-icon>
-        </div>
-      </ion-avatar>
-      
-      <ion-select interface="action-sheet" [value]="criancaAtual" (ionChange)="mudarCrianca($event)" cancelText="Cancelar" style="flex: 1;">
-        <div slot="label" style="font-size: 12px; font-weight: 400; opacity: 0.9;">Carteira de Vacinação:</div>
-        
-        @for (crianca of listaCriancas; track crianca.id) {
-          <ion-select-option [value]="crianca.id">{{ crianca.nome }}</ion-select-option>
-        }
-        
-        <ion-select-option value="NOVA_CRIANCA" style="font-weight: bold; color: var(--ion-color-dark);">
-          ➕ Adicionar Criança...
-        </ion-select-option>
-      </ion-select>
+      @if (!isProfissional || criancaBuscada) {
+        <input type="file" #uploadFoto (change)="carregarFotoPerfil($event)" accept="image/*" style="display: none;" [disabled]="isProfissional" />
+        <ion-avatar slot="start" (click)="!isProfissional && uploadFoto.click()" [style.cursor]="isProfissional ? 'default' : 'pointer'" style="position: relative; border: 2px solid white;">
+          <img [src]="getCriancaAtual().fotoPerfil || 'https://ionicframework.com/docs/img/demos/avatar.svg'" alt="Avatar da criança" style="object-fit: cover;" />
+          @if (!isProfissional) {
+            <div style="position: absolute; bottom: -2px; right: -2px; background: #fff; border-radius: 50%; padding: 2px;">
+              <ion-icon name="camera-outline" color="dark" style="font-size: 14px;"></ion-icon>
+            </div>
+          }
+        </ion-avatar>
+      }
 
-      <ion-button fill="clear" color="dark" slot="end" (click)="gerenciarCrianca()">
-        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
-      </ion-button>
+      @if (!isProfissional) {
+        <ion-select interface="action-sheet" [value]="criancaAtual" (ionChange)="mudarCrianca($event)" cancelText="Cancelar" style="flex: 1;">
+          <div slot="label" style="font-size: 12px; font-weight: 400; opacity: 0.9;">Carteira de Vacinação:</div>
+          @for (crianca of listaCriancas; track crianca.id) {
+            <ion-select-option [value]="crianca.id">{{ crianca.primeiroNome }} ({{ crianca.labelIdade }})</ion-select-option>
+          }
+          <ion-select-option value="NOVA_CRIANCA" style="font-weight: bold; color: var(--ion-color-dark);">➕ Adicionar Criança...</ion-select-option>
+        </ion-select>
+        <ion-button fill="clear" color="dark" slot="end" (click)="gerenciarCrianca()" [disabled]="!criancaAtual">
+          <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      } @else {
+        <div style="flex: 1; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0 10px;">
+          <ion-icon name="search-outline" color="light"></ion-icon>
+          <ion-input type="tel" inputmode="numeric" placeholder="CPF do Paciente..." [value]="cpfBusca" (ionInput)="formatarCPFBusca($event)" maxlength="14" style="--color: white;"></ion-input>
+          <ion-button fill="clear" color="light" (click)="buscarPaciente()">Buscar</ion-button>
+        </div>
+      }
 
     </ion-item>
   </ion-toolbar>
 </ion-header>
 
-<!-- CORPO DO APLICATIVO -->
 <ion-content style="--background: #FAFAFA;">
-  
   <div class="web-wrapper">
     
-    <div class="campaign-section">
-      <h2 class="section-title">Fique de Olho</h2>
-      
-      <swiper-container
-        autoplay-delay="4000"
-        autoplay-disable-on-interaction="false"
-        pagination="true"
-        pagination-clickable="true"
-        slides-per-view="1.15"
-        centered-slides="true"
-        space-between="15"
-        breakpoints='{"768": {"slidesPerView": 2.2, "centeredSlides": false}}'>
+    @if (isProfissional && !criancaBuscada) {
+      <div style="text-align: center; margin-top: 100px; padding: 20px;">
+        <ion-icon name="medical-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+        <h2 style="color: var(--ion-color-dark); font-weight: 800;">Acesso Profissional</h2>
+        <p style="color: #666;">Digite o CPF do paciente na barra superior para acessar a caderneta e registrar as vacinas da criança.</p>
+      </div>
+    } @else if (!isProfissional && listaCriancas.length === 0) {
+      <div style="text-align: center; margin-top: 100px; padding: 20px;">
+        <h2 style="color: var(--ion-color-dark); font-weight: 800;">Bem-vindo(a)!</h2>
+        <p style="color: #666;">Você ainda não cadastrou nenhuma caderneta.</p>
+        <ion-button expand="block" color="secondary" style="margin-top: 20px;" (click)="mudarCrianca({detail: {value: 'NOVA_CRIANCA'}})">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Adicionar Primeira Criança
+        </ion-button>
+      </div>
+    } @else {
+      @if (!isProfissional) {
+        <div class="campaign-section">
+          <h2 class="section-title">Fique de Olho</h2>
+          <swiper-container autoplay-delay="4000" autoplay-disable-on-interaction="false" pagination="true" pagination-clickable="true" slides-per-view="1.15" centered-slides="true" space-between="15" style="--swiper-pagination-color: var(--ion-color-dark); --swiper-pagination-bullet-inactive-color: #888888; --swiper-pagination-bullet-inactive-opacity: 0.5;" breakpoints='{"768": {"slidesPerView": 2.2, "centeredSlides": false}}'>
+            <swiper-slide>
+              <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
+                <img src="https://images.unsplash.com/photo-1633431305705-c2438b770dbc?auto=format&fit=crop&w=600&q=80" alt="Campanha" class="card-image" style="height: 140px; object-fit: cover; width: 100%;"/>
+                <ion-card-header><ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">Gotinha Salva-Vidas</ion-card-title></ion-card-header>
+                <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!</ion-card-content>
+              </ion-card>
+            </swiper-slide>
+            <swiper-slide>
+              <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
+                <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80" alt="Campanha" class="card-image" style="height: 140px; object-fit: cover; width: 100%;"/>
+                <ion-card-header><ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">Maio Laranja</ion-card-title></ion-card-header>
+                <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.</ion-card-content>
+              </ion-card>
+            </swiper-slide>
+          </swiper-container>
+        </div>
+      }
 
-        <swiper-slide>
-          <ion-card class="campaign-card" style="--background: var(--ion-color-secondary);">
-            <img src="https://images.pexels.com/photos/3952224/pexels-photo-3952224.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vacina Poliomielite" class="card-image" />
-            <ion-card-header>
-              <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-                Gotinha Salva-Vidas
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-              A campanha nacional contra a Poliomielite já começou. Verifique se a caderneta está em dia!
-            </ion-card-content>
-          </ion-card>
-        </swiper-slide>
-
-        <swiper-slide>
-          <ion-card class="campaign-card" style="--background: var(--ion-color-tertiary);">
-            <img src="https://images.pexels.com/photos/11612080/pexels-photo-11612080.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Maio Laranja" class="card-image" />
-            <ion-card-header>
-              <ion-card-title style="color: var(--ion-color-dark); font-weight: 800; font-size: 18px;">
-                Maio Laranja
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content style="color: var(--ion-color-dark); font-weight: 500;">
-              Combate ao abuso e exploração sexual de crianças. Na menor suspeita, não se cale. <strong>Disque 100</strong>.
-            </ion-card-content>
-          </ion-card>
-        </swiper-slide>
-
-      </swiper-container>
-    </div>
-
-    <div class="vaccines-section">
-      <h2 class="section-title">Histórico de Vacinas</h2>
-      
-      <ion-list class="vaccine-list" lines="none">
-        
-        <!-- ESTADO VAZIO -->
-        @if (listaVacinasFiltradas.length === 0) {
-          <div class="empty-state">
-            <ion-icon name="medical-outline"></ion-icon>
-            <h3>Nenhuma vacina por aqui</h3>
-            <p>Clique no botão <strong>+</strong> para adicionar a primeira vacina da caderneta desta criança.</p>
-          </div>
-        }
-
-        <!-- LISTA DE VACINAS COM DESLIZE (SWIPE) -->
-        @for (vacina of listaVacinasFiltradas; track vacina.id) {
-          <ion-item-sliding>
+      <div style="padding: 10px 15px;">
+        <ion-card style="margin: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; background: #ffffff;">
+          <ion-card-content style="padding: 15px;">
+            <h3 style="margin-top: 0; color: var(--ion-color-dark); font-weight: 800; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px;">Dados do Paciente</h3>
+            <p style="margin: 8px 0 4px; color: #555; font-size: 14px;"><strong>Criança:</strong> {{ getCriancaAtual().nome }}</p>
+            <p style="margin: 4px 0; color: #555; font-size: 14px;"><strong>CPF da Criança:</strong> {{ getCriancaAtual().cpf }}</p>
+            <p style="margin: 4px 0 0; color: #555; font-size: 14px;"><strong>Nascimento:</strong> {{ formatarData(getCriancaAtual().dataNascimento) }}</p>
             
-            <!-- Vacina Normal -->
-            <ion-item class="vaccine-item" [ngClass]="vacina.status">
-              <ion-label>
-                <h3 class="vaccine-name">{{ vacina.nome }}</h3>
-                <p class="vaccine-date">Prevista/Aplicada: {{ vacina.data }}</p>
-              </ion-label>
+            <hr style="border-top: 1px dashed #ccc; margin: 12px 0;">
+            <h4 style="margin: 0 0 8px; color: var(--ion-color-dark); font-weight: 700; font-size: 14px;">Vínculo Familiar</h4>
+            <p style="margin: 0 0 4px; color: #555; font-size: 14px;"><strong>Responsável:</strong> {{ getCriancaAtual().nomeResponsavel || 'Não informado' }}</p>
+            <p style="margin: 0 0 4px; color: #555; font-size: 14px;"><strong>CPF do Resp.:</strong> {{ getCriancaAtual().cpfResponsavel || 'Não informado' }}</p>
+            <p style="margin: 0; color: #555; font-size: 14px;"><strong>Telefone:</strong> {{ getCriancaAtual().telefoneResponsavel || 'Não informado' }}</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
 
-              @if (vacina.status === 'concluida') {
-                <ion-badge color="primary" slot="end">Em Dia</ion-badge>
-                <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
-              }
-              @if (vacina.status === 'pendente') {
-                <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
-                <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
-              }
-              @if (vacina.status === 'atrasada') {
-                <ion-badge color="tertiary" slot="end">Atrasada</ion-badge>
-                <ion-icon name="alert-circle" color="tertiary" slot="end"></ion-icon>
-              }
-            </ion-item>
+      <div class="vaccines-section">
+        <h2 class="section-title">Histórico de Vacinas</h2>
+        <ion-list class="vaccine-list" lines="none">
+          @if (listaVacinasFiltradas.length === 0) {
+            <div class="empty-state">
+              <ion-icon name="medical-outline"></ion-icon>
+              <h3>Nenhuma vacina por aqui</h3>
+              <p>O histórico desta caderneta está vazio no momento.</p>
+            </div>
+          }
 
-            <!-- Botão (deslizar) -->
-            <ion-item-options side="end">
-              <ion-item-option color="danger" (click)="deletarVacina(vacina.id)">
-                <ion-icon slot="icon-only" name="trash-outline" style="font-size: 24px;"></ion-icon>
-              </ion-item-option>
-            </ion-item-options>
-
-          </ion-item-sliding>
-        }
-      </ion-list>
-    </div>
+          @for (vacina of listaVacinasFiltradas; track vacina.id) {
+            <ion-item-sliding [disabled]="!isProfissional">
+              <ion-item class="vaccine-item" [ngClass]="vacina.status">
+                <ion-label>
+                  <h3 class="vaccine-name">{{ vacina.nome }}</h3>
+                  <p class="vaccine-date">Prevista/Aplicada: {{ vacina.data }}</p>
+                </ion-label>
+                @if (vacina.status === 'concluida') {
+                  <ion-badge color="primary" slot="end">Em Dia</ion-badge>
+                  <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
+                }
+                @if (vacina.status === 'pendente') {
+                  <ion-badge color="secondary" slot="end" style="color: var(--ion-color-dark)">No Prazo</ion-badge>
+                  <ion-icon name="time-outline" color="secondary" slot="end"></ion-icon>
+                }
+                @if (vacina.status === 'atrasada') {
+                  <ion-badge color="tertiary" slot="end">Atrasada</ion-badge>
+                  <ion-icon name="alert-circle" color="tertiary" slot="end"></ion-icon>
+                }
+              </ion-item>
+              <ion-item-options side="end">
+                <ion-item-option color="danger" (click)="deletarVacina(vacina.id)"><ion-icon slot="icon-only" name="trash-outline" style="font-size: 24px;"></ion-icon></ion-item-option>
+              </ion-item-options>
+            </ion-item-sliding>
+          }
+        </ion-list>
+      </div>
+    }
   </div>
 
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 20px; margin-right: 10px;">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 20px; margin-right: 10px;" [class.ion-hide]="!isProfissional || !criancaBuscada">
     <ion-fab-button color="primary" id="abrir-modal-vacina">
       <ion-icon name="add" style="font-size: 32px;"></ion-icon>
     </ion-fab-button>
@@ -162,44 +155,43 @@
 
   <ion-modal #modalVacina trigger="abrir-modal-vacina" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.85, 1]">
     <ng-template>
-      
       <ion-header class="ion-no-border">
         <ion-toolbar color="dark">
-          <ion-title>Nova Vacina</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="modalVacina.dismiss()">
-              <ion-icon name="close" style="font-size: 26px;"></ion-icon>
-            </ion-button>
-          </ion-buttons>
+          <ion-title>Registro Médico</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="modalVacina.dismiss()"><ion-icon name="close" style="font-size: 26px;"></ion-icon></ion-button></ion-buttons>
         </ion-toolbar>
       </ion-header>
 
       <ion-content class="ion-padding" style="--background: #FAFAFA;">
         <div style="margin-top: 15px;">
-          
           <ion-item class="form-item" lines="none">
-            <ion-input label="Nome da Vacina" labelPlacement="stacked" placeholder="Ex: Febre Amarela" [(ngModel)]="novaVacina.nome"></ion-input>
+            <ion-select label="Nome da Vacina" labelPlacement="stacked" [(ngModel)]="novaVacina.nome" cancelText="Cancelar">
+              <ion-select-option value="BCG (Tuberculose)">BCG (Tuberculose)</ion-select-option>
+              <ion-select-option value="Hepatite B">Hepatite B</ion-select-option>
+              <ion-select-option value="Poliomielite (VIP/VOP)">Poliomielite (VIP/VOP)</ion-select-option>
+              <ion-select-option value="Rotavírus Humano">Rotavírus Humano</ion-select-option>
+              <ion-select-option value="Pentavalente">Pentavalente (DTP/Hib/Hep B)</ion-select-option>
+              <ion-select-option value="Pneumocócica 10 Valente">Pneumocócica 10 Valente</ion-select-option>
+              <ion-select-option value="Meningocócica C">Meningocócica C</ion-select-option>
+              <ion-select-option value="Febre Amarela">Febre Amarela</ion-select-option>
+              <ion-select-option value="Tríplice Viral">Tríplice Viral</ion-select-option>
+              <ion-select-option value="Hepatite A">Hepatite A</ion-select-option>
+              <ion-select-option value="DTP (Tríplice Bacteriana)">DTP (Tríplice Bacteriana)</ion-select-option>
+              <ion-select-option value="HPV Quadrivalente">HPV Quadrivalente</ion-select-option>
+            </ion-select>
           </ion-item>
-
           <ion-item class="form-item" lines="none">
             <ion-input type="date" label="Data Prevista/Aplicada" labelPlacement="stacked" [(ngModel)]="novaVacina.data"></ion-input>
           </ion-item>
-
           <ion-item class="form-item" lines="none">
-            <ion-select label="Status" labelPlacement="stacked" [(ngModel)]="novaVacina.status" cancelText="Cancelar">
-              <ion-select-option value="concluida">Em Dia (Aplicada)</ion-select-option>
-              <ion-select-option value="pendente">No Prazo (Pendente)</ion-select-option>
-              <ion-select-option value="atrasada">Atrasada</ion-select-option>
+            <ion-select label="Situação" labelPlacement="stacked" [(ngModel)]="novaVacina.status" cancelText="Cancelar">
+              <ion-select-option value="concluida">Já Aplicada (Em Dia)</ion-select-option>
+              <ion-select-option value="pendente">Aguardando Aplicação</ion-select-option>
             </ion-select>
           </ion-item>
-
-          <ion-button expand="block" color="primary" style="margin-top: 30px; height: 50px; font-weight: 800;" (click)="salvarVacina(modalVacina)" [disabled]="salvando">
-            {{ salvando ? 'Salvando...' : 'Salvar na Caderneta' }}
-          </ion-button>
-
+          <ion-button expand="block" color="primary" style="margin-top: 30px; height: 50px; font-weight: 800;" (click)="salvarVacina(modalVacina)" [disabled]="salvando">{{ salvando ? 'Sincronizando SUS...' : 'Salvar no Histórico' }}</ion-button>
         </div>
       </ion-content>
-
     </ng-template>
   </ion-modal>
 
@@ -207,42 +199,25 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar color="dark">
-          <ion-title>Nova Caderneta</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="fecharModalCrianca()">
-              <ion-icon name="close" style="font-size: 26px;"></ion-icon>
-            </ion-button>
-          </ion-buttons>
+          <ion-title>{{ modoEdicaoCrianca ? 'Editar Perfil' : 'Nova Caderneta' }}</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="fecharModalCrianca()"><ion-icon name="close" style="font-size: 26px;"></ion-icon></ion-button></ion-buttons>
         </ion-toolbar>
       </ion-header>
 
       <ion-content class="ion-padding" style="--background: #FAFAFA;">
         <div style="margin-top: 15px;">
-          
           <ion-item class="form-item" lines="none">
-            <ion-input label="Nome da Criança" labelPlacement="stacked" placeholder="Ex: Lucas" [(ngModel)]="novaCriancaForm.nome"></ion-input>
+            <ion-input label="Nome Completo da Criança" labelPlacement="stacked" placeholder="Ex: Lucas Silva" [(ngModel)]="novaCriancaForm.nome"></ion-input>
           </ion-item>
-
-          <div style="display: flex; gap: 10px;">
-            <ion-item class="form-item" lines="none" style="flex: 1;">
-              <ion-input type="number" label="Idade" labelPlacement="stacked" placeholder="Ex: 3" [(ngModel)]="novaCriancaForm.idade"></ion-input>
-            </ion-item>
-
-            <ion-item class="form-item" lines="none" style="flex: 1;">
-              <ion-select label="Período" labelPlacement="stacked" [(ngModel)]="novaCriancaForm.tipoIdade">
-                <ion-select-option value="anos">Anos</ion-select-option>
-                <ion-select-option value="meses">Meses</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-
-          <ion-button expand="block" color="secondary" style="margin-top: 30px; height: 50px; font-weight: 800; --color: #222;" (click)="salvarNovaCrianca()">
-            Criar Caderneta
-          </ion-button>
-
+          <ion-item class="form-item" lines="none" style="margin-top: 10px;">
+            <ion-input type="tel" inputmode="numeric" label="CPF da Criança" labelPlacement="stacked" placeholder="000.000.000-00" [value]="novaCriancaForm.cpf" (ionInput)="formatarCPFCrianca($event)" maxlength="14"></ion-input>
+          </ion-item>
+          <ion-item class="form-item" lines="none" style="margin-top: 10px;">
+            <ion-input type="date" label="Data de Nascimento" labelPlacement="stacked" [(ngModel)]="novaCriancaForm.dataNascimento"></ion-input>
+          </ion-item>
+          <ion-button expand="block" color="secondary" style="margin-top: 30px; height: 50px; font-weight: 800; --color: #222;" (click)="salvarNovaCrianca()">{{ modoEdicaoCrianca ? 'Salvar Alterações' : 'Criar Caderneta' }}</ion-button>
         </div>
       </ion-content>
     </ng-template>
   </ion-modal>
-
 </ion-content>
